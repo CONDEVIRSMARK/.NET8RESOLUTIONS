@@ -1,0 +1,3366 @@
+RaiseFailFastException(void)in-top: -30px;
+SAGE
+$ dotenv-vault new [DOTENV_VAULT] [-y]
+
+ARGUMENTS
+DOTENV_VAULT  Set .env.vault identifier. Defaults to generated value.
+
+FLAGS
+-y, --yes  Automatic yes to prompts. Assume yes to all prompts and run non-interactively.
+
+DESCRIPTION
+Create your project
+
+EXAMPLES
+$ dotenv-vault new   }2:05:30.557 [info] Attempting to reach URL "https://login.microsoftonline.com/"...
+2024-01-27 02:05:30.558 [info] Attempting to reach URL "https://login.microsoftonline.com/"...
+2024-01-27 02:05:30.558 [info] Attempting to reach URL "https://login.microsoftonline.com/"...
+2024-01-27 02:05:30.558 [info] Attempting to reach URL "https://login.microsoftonline.com/"...
+2024-01-27 02:05:30.558 [info] Attempting to reach URL "https://login.microsoftonline.com/"...
+2024-01-27 02:05:30.558 [info] Attempting to reach URL "https://login.microsoftonline.com/"...
+2024-01-27 02:08:07.643 [info] Error: Cannot read properties of undefined (reading 'userId')
+2024-01-27 02:08:07.854 [info] Error: Cannot read properties of undefined (reading 'userId')
+2024-01-27 03:52:36.429 [info] MSAL: [Sat, 27 Jan 2024 09:52:36 GMT] : @azure/msal-node@1.14.6 : Info - getTokenCache called
+# ASP.NET Core (.NET Framework)
+# Build and test ASP.NET Core projects targeting the full .NET Framework.
+# Add steps that publish symbols, save build artifacts, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+trigger:
+- main
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+
+steps:
+- task: NuGetToolInstaller@1
+
+- task: NuGetCommand@2
+  inputs:
+    restoreSolution: '$(solution)'
+
+- task: VSBuild@1
+  inputs:
+    solution: '$(solution)'
+    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
+    platform: '$(buildPlatform)'
+    configuration: '$(buildConfiguration)'
+
+- task: VSTest@2
+  inputs:
+    platform: '$(buildPlatform)'# ASP.NET Core (.NET Framework)
+# Build and test ASP.NET Core projects targeting the full .NET Framework.
+# Add steps that publish symbols, save build artifacts, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+trigger:
+- main
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+
+steps:
+- task: NuGetToolInstaller@1
+
+- task: NuGetCommand@2
+  inputs:
+    restoreSolution: '$(solution)'
+
+- task: VSBuild@1
+  inputs:
+    solution: '$(solution)'
+    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
+    platform: '$(buildPlatform)'
+    configuration: '$(buildConfiguration)'
+
+- task: VSTest@2
+  inputs:
+    platform: '$(buildPlatform)'
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+</Project>// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
+#ifndef __HOSTFXR_H__
+#define __HOSTFXR_H__
+
+#include <stddef.h>
+#include <stdint.h>
+
+#if defined(_WIN32)
+    #define HOSTFXR_CALLTYPE __cdecl
+    #ifdef _WCHAR_T_DEFINED
+        typedef wchar_t char_t;
+    #else
+        typedef unsigned short char_t;
+    #endif
+#else
+    #define HOSTFXR_CALLTYPE
+    typedef char char_t;
+#endif
+
+enum hostfxr_delegate_type
+{
+    hdt_com_activation,
+    hdt_load_in_memory_assembly,
+    hdt_winrt_activation,
+    hdt_com_register,
+    hdt_com_unregister,
+    hdt_load_assembly_and_get_function_pointer,
+    hdt_get_function_pointer,
+    hdt_load_assembly,
+    hdt_load_assembly_bytes,
+};
+
+typedef int32_t(HOSTFXR_CALLTYPE *hostfxr_main_fn)(const int argc, const char_t **argv);
+typedef int32_t(HOSTFXR_CALLTYPE *hostfxr_main_startupinfo_fn)(
+    const int argc,
+    const char_t **argv,
+    const char_t *host_path,
+    const char_t *dotnet_root,
+    const char_t *app_path);
+typedef int32_t(HOSTFXR_CALLTYPE* hostfxr_main_bundle_startupinfo_fn)(
+    const int argc,
+    const char_t** argv,
+    const char_t* host_path,
+    const char_t* dotnet_root,
+    const char_t* app_path,
+    int64_t bundle_header_offset);
+
+typedef void(HOSTFXR_CALLTYPE *hostfxr_error_writer_fn)(const char_t *message);
+
+//
+// Sets a callback which is to be used to write errors to.
+//
+// Parameters:
+//     error_writer
+//         A callback function which will be invoked every time an error is to be reported.
+//         Or nullptr to unregister previously registered callback and return to the default behavior.
+// Return value:
+//     The previously registered callback (which is now unregistered), or nullptr if no previous callback
+//     was registered
+//
+// The error writer is registered per-thread, so the registration is thread-local. On each thread
+// only one callback can be registered. Subsequent registrations overwrite the previous ones.
+//
+// By default no callback is registered in which case the errors are written to stderr.
+//
+// Each call to the error writer is sort of like writing a single line (the EOL character is omitted).
+// Multiple calls to the error writer may occur for one failure.
+//
+// If the hostfxr invokes functions in hostpolicy as part of its operation, the error writer
+// will be propagated to hostpolicy for the duration of the call. This means that errors from
+// both hostfxr and hostpolicy will be reporter through the same error writer.
+//
+typedef hostfxr_error_writer_fn(HOSTFXR_CALLTYPE *hostfxr_set_error_writer_fn)(hostfxr_error_writer_fn error_writer);
+
+typedef void* hostfxr_handle;
+struct hostfxr_initialize_parameters
+{
+    size_t size;
+    const char_t *host_path;
+    const char_t *dotnet_root;
+};
+
+//
+// Initializes the hosting components for a dotnet command line running an application
+//
+// Parameters:
+//    argc
+//      Number of argv arguments
+//    argv
+//      Command-line arguments for running an application (as if through the dotnet executable).
+//      Only command-line arguments which are accepted by runtime installation are supported, SDK/CLI commands are not supported.
+//      For example 'app.dll app_argument_1 app_argument_2`.
+//    parameters
+//      Optional. Additional parameters for initialization
+//    host_context_handle
+//      On success, this will be populated with an opaque value representing the initialized host context
+//
+// Return value:
+//    Success          - Hosting components were successfully initialized
+//    HostInvalidState - Hosting components are already initialized
+//
+// This function parses the specified command-line arguments to determine the application to run. It will
+// then find the corresponding .runtimeconfig.json and .deps.json with which to resolve frameworks and
+// dependencies and prepare everything needed to load the runtime.
+//
+// This function only supports arguments for running an application. It does not support SDK commands.
+//
+// This function does not load the runtime.
+//
+typedef int32_t(HOSTFXR_CALLTYPE *hostfxr_initialize_for_dotnet_command_line_fn)(
+    int argc,
+    const char_t **argv,
+    const struct hostfxr_initialize_parameters *parameters,
+    /*out*/ hostfxr_handle *host_context_handle);
+
+//
+// Initializes the hosting components using a .runtimeconfig.json file
+//
+// Parameters:
+//    runtime_config_path
+//      Path to the .runtimeconfig.json file
+//    parameters
+//      Optional. Additional parameters for initialization
+//    host_context_handle
+//      On success, this will be populated with an opaque value representing the initialized host context
+//
+// Return value:
+//    Success                            - Hosting components were successfully initialized
+//    Success_HostAlreadyInitialized     - Config is compatible with already initialized hosting components
+//    Success_DifferentRuntimeProperties - Config has runtime properties that differ from already initialized hosting components
+//    CoreHostIncompatibleConfig         - Config is incompatible with already initialized hosting components
+//
+// This function will process the .runtimeconfig.json to resolve frameworks and prepare everything needed
+// to load the runtime. It will only process the .deps.json from frameworks (not any app/component that
+// may be next to the .runtimeconfig.json).
+//
+// This function does not load the runtime.
+//
+// If called when the runtime has already been loaded, this function will check if the specified runtime
+// config is compatible with the existing runtime.
+//
+// Both Success_HostAlreadyInitialized and Success_DifferentRuntimeProperties codes are considered successful
+// initializations. In the case of Success_DifferentRuntimeProperties, it is left to the consumer to verify that
+// the difference in properties is acceptable.
+//
+typedef int32_t(HOSTFXR_CALLTYPE *hostfxr_initialize_for_runtime_config_fn)(
+    const char_t *runtime_config_path,
+    const struct hostfxr_initialize_parameters *parameters,
+    /*out*/ hostfxr_handle *host_context_handle);
+
+//
+// Gets the runtime property value for an initialized host context
+//
+// Parameters:
+//     host_context_handle
+//       Handle to the initialized host context
+//     name
+//       Runtime property name
+//     value
+//       Out parameter. Pointer to a buffer with the property value.
+//
+// Return value:
+//     The error code result.
+//
+// The buffer pointed to by value is owned by the host context. The lifetime of the buffer is only
+// guaranteed until any of the below occur:
+//   - a 'run' method is called for the host context
+//   - properties are changed via hostfxr_set_runtime_property_value
+//   - the host context is closed via 'hostfxr_close'
+//
+// If host_context_handle is nullptr and an active host context exists, this function will get the
+// property value for the active host context.
+//
+typedef int32_t(HOSTFXR_CALLTYPE *hostfxr_get_runtime_property_value_fn)(
+    const hostfxr_handle host_context_handle,
+    const char_t *name,
+    /*out*/ const char_t **value);
+
+//
+// Sets the value of a runtime property for an initialized host context
+//
+// Parameters:
+//     host_context_handle
+//       Handle to the initialized host context
+//     name
+//       Runtime property name
+//     value
+//       Value to set
+//
+// Return value:
+//     The error code result.
+//
+// Setting properties is only supported for the first host context, before the runtime has been loaded.
+//
+// If the property already exists in the host context, it will be overwritten. If value is nullptr, the
+// property will be removed.
+//
+typedef int32_t(HOSTFXR_CALLTYPE *hostfxr_set_runtime_property_value_fn)(
+    const hostfxr_handle host_context_handle,
+    const char_t *name,
+    const char_t *value);
+
+//
+// Gets all the runtime properties for an initialized host context
+//
+// Parameters:
+//     host_context_handle
+//       Handle to the initialized host context
+//     count
+//       [in] Size of the keys and values buffers
+//       [out] Number of properties returned (size of keys/values buffers used). If the input value is too
+//             small or keys/values is nullptr, this is populated with the number of available properties
+//     keys
+//       Array of pointers to buffers with runtime property keys
+//     values
+//       Array of pointers to buffers with runtime property values
+//
+// Return value:
+//     The error code result.
+//
+// The buffers pointed to by keys and values are owned by the host context. The lifetime of the buffers is only
+// guaranteed until any of the below occur:
+//   - a 'run' method is called for the host context
+//   - properties are changed via hostfxr_set_runtime_property_value
+//   - the host context is closed via 'hostfxr_close'
+//
+// If host_context_handle is nullptr and an active host context exists, this function will get the
+// properties for the active host context.
+//
+typedef int32_t(HOSTFXR_CALLTYPE *hostfxr_get_runtime_properties_fn)(
+    const hostfxr_handle host_context_handle,
+    /*inout*/ size_t * count,
+    /*out*/ const char_t **keys,
+    /*out*/ const char_t **values);
+
+//
+// Load CoreCLR and run the application for an initialized host context
+//
+// Parameters:
+//     host_context_handle
+//       Handle to the initialized host context
+//
+// Return value:
+//     If the app was successfully run, the exit code of the application. Otherwise, the error code result.
+//
+// The host_context_handle must have been initialized using hostfxr_initialize_for_dotnet_command_line.
+//
+// This function will not return until the managed application exits.
+//
+typedef int32_t(HOSTFXR_CALLTYPE *hostfxr_run_app_fn)(const hostfxr_handle host_context_handle);
+
+//
+// Gets a typed delegate from the currently loaded CoreCLR or from a newly created one.
+//
+// Parameters:
+//     host_context_handle
+//       Handle to the initialized host context
+//     type
+//       Type of runtime delegate requested
+//     delegate
+//       An out parameter that will be assigned the delegate.
+//
+// Return value:
+//     The error code result.
+//
+// If the host_context_handle was initialized using hostfxr_initialize_for_runtime_config,
+// then all delegate types are supported.
+// If the host_context_handle was initialized using hostfxr_initialize_for_dotnet_command_line,
+// then only the following delegate types are currently supported:
+//     hdt_load_assembly_and_get_function_pointer
+//     hdt_get_function_pointer
+//
+typedef int32_t(HOSTFXR_CALLTYPE *hostfxr_get_runtime_delegate_fn)(
+    const hostfxr_handle host_context_handle,
+    enum hostfxr_delegate_type type,
+    /*out*/ void **delegate);
+
+//
+// Closes an initialized host context
+//
+// Parameters:
+//     host_context_handle
+//       Handle to the initialized host context
+//
+// Return value:
+//     The error code result.
+//
+typedef int32_t(HOSTFXR_CALLTYPE *hostfxr_close_fn)(const hostfxr_handle host_context_handle);
+
+struct hostfxr_dotnet_environment_sdk_info
+{
+    size_t size;
+    const char_t* version;
+    const char_t* path;
+};
+
+typedef void(HOSTFXR_CALLTYPE* hostfxr_get_dotnet_environment_info_result_fn)(
+    const struct hostfxr_dotnet_environment_info* info,
+    void* result_context);
+
+struct hostfxr_dotnet_environment_framework_info
+{
+    size_t size;
+    const char_t* name;
+    const char_t* version;
+    const char_t* path;
+};
+
+struct hostfxr_dotnet_environment_info
+{
+    size_t size;
+
+    const char_t* hostfxr_version;
+    const char_t* hostfxr_commit_hash;
+
+    size_t sdk_count;
+    const struct hostfxr_dotnet_environment_sdk_info* sdks;
+
+    size_t framework_count;
+    const struct hostfxr_dotnet_environment_framework_info* frameworks;
+};
+
+//
+// Returns available SDKs and frameworks.
+//
+// Resolves the existing SDKs and frameworks from a dotnet root directory (if
+// any), or the global default location. If multi-level lookup is enabled and
+// the dotnet root location is different than the global location, the SDKs and
+// frameworks will be enumerated from both locations.
+//
+// The SDKs are sorted in ascending order by version, multi-level lookup
+// locations are put before private ones.
+//
+// The frameworks are sorted in ascending order by name followed by version,
+// multi-level lookup locations are put before private ones.
+//
+// Parameters:
+//    dotnet_root
+//      The path to a directory containing a dotnet executable.
+//
+//    reserved
+//      Reserved for future parameters.
+//
+//    result
+//      Callback invoke to return the list of SDKs and frameworks.
+//      Structs and their elements are valid for the duration of the call.
+//
+//    result_context
+//      Additional context passed to the result callback.
+//
+// Return value:
+//   0 on success, otherwise failure.
+//
+// String encoding:
+//   Windows     - UTF-16 (pal::char_t is 2 byte wchar_t)
+//   Unix        - UTF-8  (pal::char_t is 1 byte char)
+//
+typedef int32_t(HOSTFXR_CALLTYPE* hostfxr_get_dotnet_environment_info_fn)(
+    const char_t* dotnet_root,
+    void* reserved,
+    hostfxr_get_dotnet_environment_info_result_fn result,
+    void* result_context);
+
+#endif //__HOSTFXR_H__
+
+
+
+
+Cada pacote é licenciado para você por seu proprietário. A NuGet não é responsável por pacotes de terceiros nem concede licenças a eles. Alguns pacotes podem incluir dependências que são administradas por licenças adicionais. Siga a URL da origem (feed) do pacote para determinar todas as dependências.
+
+Versão 5.11.4.13 do Host do Console do Gerenciador de Pacotes
+
+Digite 'get-help NuGet' para ver todos os comandos disponíveis do NuGet.
+
+PM> "Microsoft.DiaSymReader.Pdb2Pdb/1.1.0-beta2-19575-01": {
+At line:1 char:54
++ "Microsoft.DiaSymReader.Pdb2Pdb/1.1.0-beta2-19575-01": {
++                                                      ~
+Unexpected token ':' in expression or statement.
+
+At line:1 char:56
++ "Microsoft.DiaSymReader.Pdb2Pdb/1.1.0-beta2-19575-01": {
++                                                        ~
+Missing closing '}' in statement block or type definition.
+PM>       "type": "package",
+At line:1 char:13
++       "type": "package",
++             ~
+Unexpected token ':' in expression or statement.
+
+At line:1 char:25
++       "type": "package",
++                         ~
+Missing expression after ',' in pipeline element.
+PM>       "serviceable": true,
+At line:1 char:20
++       "serviceable": true,
++                    ~
+Unexpected token ':' in expression or statement.
+
+At line:1 char:27
++       "serviceable": true,
++                           ~
+Missing expression after ',' in pipeline element.
+PM>       fS4nyfpgFLHBxHriLBR4v3e9t71it91gIMEeKUqOqrFJ7Pj48eHA==",
+>>        "path": "microsoft.diasymreader.pdb2pdb/1.1.0-beta2-19575-01",
+>>        "hashPath": "microsoft.diasymreader.pdb2pdb.1.1.0-beta2-19575-01.nupkg.sha512""sha512": "sha512-kY6eTNkeWLHvfOjg97Q7tgQKrPpX+Y3fR6
+fS4nyfpgFLHBxHriLBR4v3e9t71it91gIMEeKUqOqrFJ7Pj48eHA==,
+      path: microsoft.diasymreader.pdb2pdb/1.1.0-beta2-19575-01,
+      hashPath: microsoft.diasymreader.pdb2pdb.1.1.0-beta2-19575-01.nupkg.sha512sha512: sha512-kY6eTNkeWLHvfOjg97Q7tgQKrPpX+Y3fR6 : The term 'fS4nyfpgFLHBxHriLBR4v3e9t71it91gIMEeKUqOqrFJ7Pj48eHA==,
+      path: microsoft.diasymreader.pdb2pdb/1.1.0-beta2-19575-01,
+      hashPath: microsoft.diasymreader.pdb2pdb.1.1.0-beta2-19575-01.nupkg.sha512sha512: sha512-kY6eTNkeWLHvfOjg97Q7tgQKrPpX+Y3fR6' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the 
+spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:7
++       fS4nyfpgFLHBxHriLBR4v3e9t71it91gIMEeKUqOqrFJ7Pj48eHA==",
++       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (fS4nyfpgFLHBxHr...7tgQKrPpX+Y3fR6:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+PM>     }
+At line:1 char:5
++     }
++     ~
+Unexpected token '}' in expression or statement.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{
+    "launch": {
+        "configurations": [
+        
+        ]
+    }transcripcioninstantanea#DESKTOP-C537H4Jelse
+{
+    <table class="table">
+    https://prod.liveshare.vsengsaas.visualstudio.com/join?170876FC7619F8B462C5A577FDA4F2A153B2  <thead>
+            <tr>
+                <th>Date</th>
+                <th>Temp. (C)</th>
+                <th>Temp. (F)</th>
+                <th>Summary</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in forecasts)
+            {
+                <tr>
+                    <td>@forecast.Date.ToShortDateString()</td>
+                    <td>@forecast.TemperatureC</td>
+                    <td>@forecast.TemperatureF</td>
+                    <td>@forecast.Summary</td>
+                </tr>
+            }Install-Module -Name SqlServer
+        </tbody>
+    </table>
+}else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Temp. (C)</th>
+                <th>Temp. (F)</th>
+                <th>Summary</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in forecasts)
+            {
+                <tr>
+                    <td>@forecast.Date.ToShortDateString()</td>
+                    <td>@forecast.TemperatureC</td>
+                    <td>@forecast.TemperatureF</td>
+                    <td>@forecast.Summary</td>
+                </tr>
+            }Install-Module -Name SqlServer
+        </tbody>
+    </table>
+}
+
+@code {
+    private WeatherForecast[]? forecasts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Simulate asynchronous loading to demonstrate streaming rendering
+        await Task.Delay(500);
+
+        var startDate = DateOnly.FromDateTime(DateTime.Now);
+        var summaries = new[] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" };
+    forecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
+        {
+            Date = startDate.AddDays(index),
+            TemperatureC = Random.Shared.Next(-20, 55),
+            Summary = summaries[Random.Shared.Next(summaries.Length)]
+        }).ToArray();
+    }
+
+    private class WeatherForecast
+    {
+        public DateOnly Date { get; set; }
+        public int TemperatureC { get; set; }
+        public string? Summary { get; set; }
+        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    }
+}
+
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Temp. (C)</th>
+                <th>Temp. (F)</th>
+                <th>Summary</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in forecasts)
+            {
+                <tr>
+                    <td>@forecast.Date.ToShortDateString()</td>
+                    <td>@forecast.TemperatureC</td>
+                    <td>@forecast.TemperatureF</td>
+                    <td>@forecast.Summary</td>
+                </tr>
+            }Install-Module -Name SqlServer
+        </tbody>
+    </table>
+}
+
+@code {
+    private WeatherForecast[]? forecasts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Simulate asynchronous loading to demonstrate streaming rendering
+        await Task.Delay(500);
+
+        var startDate = DateOnly.FromDateTime(DateTime.Now);
+        var summaries = new[] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" };
+    forecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
+        {
+            Date = startDate.AddDays(index),
+            TemperatureC = Random.Shared.Next(-20, 55),
+            Summary = summaries[Random.Shared.Next(summaries.Length)]
+        }).ToArray();
+    }
+
+    private class WeatherForecast
+    {
+        public DateOnly Date { get; set; }
+        public int TemperatureC { get; set; }
+        public string? Summary { get; set; }
+        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    }
+}
+
+
+
+@code {
+    private WeatherForecast[]? forecasts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Simulate asynchronous loading to demonstrate streaming rendering
+        await Task.Delay(500);
+
+        var startDate = DateOnly.FromDateTime(DateTime.Now);
+        var summaries = new[] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" };
+    forecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
+        {
+            Date = startDate.AddDays(index),
+            TemperatureC = Random.Shared.Next(-20, 55),
+            Summary = summaries[Random.Shared.Next(summaries.Length)]
+        }).ToArray();
+    }
+
+    private class WeatherForecast
+    {
+        public DateOnly Date { get; set; }
+        public int TemperatureC { get; set; }
+        public string? Summary { get; set; }
+        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    }
+}
+
+    "workbench.colorTheme": "Default High Contrast",
+    "editor.unicodeHighlight.invisibleCharacters": false,
+    "editor.unicodeHighlight.ambiguousCharacters": false,
+    "workbench.editorAssociations": {
+    },
+    "prolead.runTime.timesActivated": 9,
+    "prolead.templates.configFile": "c:\\Users\\antim\\.vscode-insiders\\extensions\\chairimpsec.prolead-1.2.8/templates/config.set",
+    "prolead.templates.designFile": "c:\\Users\\antim\\.vscode-insiders\\extensions\\chairimpsec.prolead-1.2.8/templates/design.v",
+    "prolead.templates.libraryFile": "c:\\Users\\antim\\.vscode-insiders\\extensions\\chairimpsec.prolead-1.2.8/templates/library.lib",
+    "prolead.templates.linkerFile": "c:\\Users\\antim\\.vscode-insiders\\extensions\\chairimpsec.prolead-1.2.8/templates/linker.ld",
+    "prolead.runTime.welcomePage": false,
+    "editor.accessibilitySupport": "on",
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": true
+    },
+    "editor.linkedEditing": true,
+    "editor.minimap.enabled": false,
+    "editor.rulers": [
+        {
+            "column": 80,
+            "color": "#00FF0010"
+        },
+        {
+            "column": 100,
+            "color": "#BDB76B15"
+        },
+        {
+            "column": 120,
+            "color": "#FA807219"
+        }
+    ],
+    "editor.unicodeHighlight.includeComments": true,
+    "emmet.variables": {
+        "lang": "es"
+    },
+    "workbench.colorCustomizations": {
+        "[Default Dark Modern]": {
+            "tab.activeBorderTop": "#00FF00",
+            "tab.unfocusedActiveBorderTop": "#00FF0088",
+            "textCodeBlock.background": "#00000055"
+        },
+        "editor.wordHighlightStrongBorder": "#FF6347",
+        "editor.wordHighlightBorder": "#FFD700",
+        "editor.selectionHighlightBorder": "#A9A9A9"
+    },
+    "workbench.editor.revealIfOpen": true,
+    "workbench.tree.indent": 20,
+    "files.eol": "\n",
+    "[bat]": {
+        "files.eol": "\r\n"
+    },
+    "terminal.integrated.enablePersistentSessions": false,
+    "terminal.integrated.tabs.hideCondition": "never",
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.debug.settings.hotCodeReplace": "auto",
+    "java.sources.organizeImports.staticStarThreshold": 1,
+    "cSpell.diagnosticLevel": "Hint",
+    "glassit.alpha": 230,
+    "trailing-spaces.includeEmptyLines": false,
+    "java.jdt.ls.java.home": "c:\\Users\\antim\\AppData\\Roaming\\Code - Insiders\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\17",
+    "spring-boot.ls.java.home": "c:\\Users\\antim\\AppData\\Roaming\\Code - Insiders\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\17",
+    "java.configuration.runtimes": [
+        {
+            "name": "JavaSE-1.8",
+            "path": "C:\\Program Files\\Eclipse Foundation\\jdk-8.0.302.8-hotspot"
+        },
+        {
+            "name": "JavaSE-11",
+            "path": "C:\\Program Files\\Microsoft\\jdk-11.0.16.101-hotspot"
+        },
+        {
+            "name": "JavaSE-17",
+            "path": "c:\\Users\\antim\\AppData\\Roaming\\Code - Insiders\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\17",
+            "default": true
+        }
+    ],
+    "java.import.gradle.java.home": "c:\\Users\\antim\\AppData\\Roaming\\Code - Insiders\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\17",
+    "maven.terminal.customEnv": [
+        {
+            "environmentVariable": "JAVA_HOME",
+            "value": "c:\\Users\\antim\\AppData\\Roaming\\Code - Insiders\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\17"
+        }
+    ],
+    "terminal.integrated.env.windows": {
+        "PATH": "c:\\Users\\antim\\AppData\\Roaming\\Code - Insiders\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\17\\bin;${env:PATH}",
+        "JAVA_HOME": "c:\\Users\\antim\\AppData\\Roaming\\Code - Insiders\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\17"
+    }
+} Copyright (c) Microsoft Corporation. All rights reserved.
+# Licensed under the MIT license.
+
+# <ScriptBody>
+param(
+  [Parameter(Mandatory=$true,
+  HelpMessage="The app ID of the app registration")]
+  [String]
+  $AppId,
+
+  [Parameter(Mandatory=$true,
+  HelpMessage="The application permission scopes to configure on the app registration")]
+  [String[]]
+  $GraphScopes,
+
+  [Parameter(Mandatory=$false)]
+  [Switch]
+  $StayConnected = $false
+)
+
+$graphAppId = "00000003-0000-0000-c000-000000000000"
+
+# Requires an admin
+Connect-MgGraph -Scopes "Application.ReadWrite.All AppRoleAssignment.ReadWrite.All User.Read" `
+ -UseDeviceAuthentication -ErrorAction Stop
+
+# Get context for access to tenant ID
+$context = Get-MgContext -ErrorAction Stop
+
+# Get the application and service principal
+$appRegistration = Get-MgApplication -Filter ("appId eq '" + $AppId +"'") -ErrorAction Stop
+$appServicePrincipal = Get-MgServicePrincipal -Filter ("appId eq '" + $AppId + "'") -ErrorAction Stop
+
+# Lookup available Graph application permissions
+$graphServicePrincipal = Get-MgServicePrincipal -Filter ("appId eq '" + $graphAppId + "'") -ErrorAction Stop
+$graphAppPermissions = $graphServicePrincipal.AppRoles
+
+$resourceAccess = @()
+
+foreach($scope in $GraphScopes)
+{
+  $permission = $graphAppPermissions | Where-Object { $_.Value -eq $scope }
+  if ($permission)
+  {
+    $resourceAccess += @{ Id =  $permission.Id; Type = "Role"}
+  }
+  else
+  {
+    Write-Host -ForegroundColor Red "Invalid scope:" $scope
+    Exit
+  }
+}
+
+# Add the permissions to required resource access
+Update-MgApplication -ApplicationId $appRegistration.Id -RequiredResourceAccess `
+ @{ ResourceAppId = $graphAppId; ResourceAccess = $resourceAccess } -ErrorAction Stop
+Write-Host -ForegroundColor Cyan "Added application permissions to app registration"
+
+# Add admin consent
+foreach ($appRole in $resourceAccess)
+{
+  New-MgServicePrincipalAppRoleAssignment -ServicePrincipalId $appServicePrincipal.Id `
+   -PrincipalId $appServicePrincipal.Id -ResourceId $graphServicePrincipal.Id `
+   -AppRoleId $appRole.Id -ErrorAction SilentlyContinue -ErrorVariable SPError | Out-Null
+  if ($SPError)
+  {
+    Write-Host -ForegroundColor Red "Admin consent for one of the requested scopes could not be added."
+    Write-Host -ForegroundColor Red $SPError
+    Exit
+  }
+}
+Write-Host -ForegroundColor Cyan "Added admin consent"
+
+# Add a client secret
+$clientSecret = Add-MgApplicationPassword -ApplicationId $appRegistration.Id -PasswordCredential `
+ @{ DisplayName = "Added by PowerShell" } -ErrorAction Stop
+
+Write-Host
+Write-Host -ForegroundColor Green "SUCCESS"
+Write-Host -ForegroundColor Cyan -NoNewline "Tenant ID: "
+Write-Host -ForegroundColor Yellow $context.TenantId
+Write-Host -ForegroundColor Cyan -NoNewline "Client secret: "
+Write-Host -ForegroundColor Yellow $clientSecret.SecretText
+Write-Host -ForegroundColor Cyan -NoNewline "Secret expires: "
+Write-Host -ForegroundColor Yellow $clientSecret.EndDateTime
+
+if ($StayConnected -eq $false)
+{
+  Disconnect-MgGraph
+  Write-Host "Disconnected from Microsoft Graph"
+}
+else
+{
+  Write-Host
+  Write-Host -ForegroundColor Yellow `
+   "The connection to Microsoft Graph is still active. To disconnect, use Disconnect-MgGraph"
+}
+# </ScriptBody>
+d: 8b02a6e4-2be8-4785-fef6-08db1c22c4a3
+X-MS-Exchange-CrossTenant-originalarrivaltime: 03 Mar 2023 20:06:25.6292
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CO3PR03MB6776
+Received-SPF: pass clieela interativa de depuração do Python. Digite $help para obter uma lista de comandos.
+>>> HELP
+O código só pode ser executado enquanto interrompido no depurador.
+>>> <?xml version="1.0" encoding="utf-16"?>
+O código só pode ser executado enquanto interrompido no depurador.
+>>> <Project xmlns="http://schemas.postsharp.org/1.0/configuration">
+O código só pode ser executado enquanto interrompido no depurador.
+>>>   <Property Name="DebuggerExtensionsMode" Value="Enabled" />
+O código só pode ser executado enquanto interrompido no depurador.
+>>> </Project>																									   C:\Users\antim\OneDrive\Escritorio\.vs\slnx.sqlite<?xml version="1.0" encoding="utf-16"?>
+>>> <Project xmlns="http://schemas.postsharp.org/1.0/configuration">
+>>>   <Property Name="DebuggerExtensionsMode" Value="Enabled" />
+>>> </Project>																									   C:\Users\antim\OneDrive\Escritorio\.vs\slnx.sqlite
+O código só pode ser executado enquanto interrompido no depurador.
+Alternando o ambiente interativo...
+antim janela interativa [PTVS 16.11.21196.2-16.0]
+Digite $help para obter uma lista de comandos.
+>>> <?xml version="1.0" encoding="utf-16"?>
+Falha ao iniciar o processo interativo: 
+System.ComponentModel.Win32Exception (0x80004005): La operación se completó correctamente
+   at Microsoft.PythonTools.Repl.PythonInteractiveEvaluator.<ConnectAsync>d__43.MoveNext()
+
+Falha ao iniciar o processo interativo: 
+System.ComponentModel.Win32Exception (0x80004005): La operación se completó correctamente
+   at Microsoft.PythonTools.Repl.PythonInteractiveEvaluator.<ConnectAsync>d__43.MoveNext()
+
+A janela interativa atual está desconectada.
+>>> <Project xmlns="http://schemas.postsharp.org/1.0/configuration">
+Falha ao iniciar o processo interativo: 
+System.ComponentModel.Win32Exception (0x80004005): La operación se completó correctamente
+   at Microsoft.PythonTools.Repl.PythonInteractiveEvaluator.<ConnectAsync>d__43.MoveNext()
+
+Falha ao iniciar o processo interativo: 
+System.ComponentModel.Win32Exception (0x80004005): La operación se completó correctamente
+   at Microsoft.PythonTools.Repl.PythonInteractiveEvaluator.<ConnectAsync>d__43.MoveNext()
+
+A janela interativa atual está desconectada.
+O processo interativo do Python foi encerrado.
+>>> 
+Alternando o ambiente interativo...
+O processo interativo do Python foi encerrado.
+Python 3.12 (64-bit) janela interativa [PTVS 16.11.21196.2-16.0]
+Digite $help para obter uma lista de comandos.
+Alternando o ambiente interativo...
+O processo interativo do Python foi encerrado.
+Python 3.9 (32-bit) janela interativa [PTVS 16.11.21196.2-16.0]
+Digite $help para obter uma lista de comandos.
+
+    Internal error detected. Please copy the above traceback and report at
+    https://go.microsoft.com/fwlink/?LinkId=293415
+
+    Press Enter to close. . .
+Traceback (most recent call last):
+  File "c:\program files (x86)\microsoft visual studio\2019\community\common7\ide\extensions\microsoft\python\core\ptvsd_repl_launcher.py", line 33, in _get_repl
+    import ptvsd.repl
+  File "c:\program files (x86)\microsoft visual studio\2019\community\common7\ide\extensions\microsoft\python\core\ptvsd\repl\__init__.py", line 42, in <module>
+    import imp
+ModuleNotFoundError: No module named 'imp'
+O processo interativo do Python foi encerrado.
+>>> <?xml version="1.0" encoding="utf-16"?>
+Error using selected REPL back-end:
+Traceback (most recent call last):
+  File "c:\program files (x86)\microsoft visual studio\2019\community\common7\ide\extensions\microsoft\python\core\ptvsd_repl_launcher.py", line 81, in _run_repl
+    backend_type = getattr(__import__(backend_mod_name, fromlist=['*']), backend_name)
+  File "c:\program files (x86)\microsoft visual studio\2019\community\common7\ide\extensions\microsoft\python\core\ptvsd\repl\ipython.py", line 49, in <module>
+    from .ipython_client import IPythonBackend, IPythonBackendWithoutPyLab
+  File "c:\program files (x86)\microsoft visual studio\2019\community\common7\ide\extensions\microsoft\python\core\ptvsd\repl\ipython_client.py", line 31, in <module>
+    from base64 import decodestring
+ImportError: cannot import name 'decodestring' from 'base64' (C:\Program Files (x86)\Microsoft Visual Studio\Shared\Python39_86\lib\base64.py)
+
+Using standard backend instead
+  File "<stdin>", line 1
+    <?xml version="1.0" encoding="utf-16"?>
+    ^nt-ip=40.92.41.49; envelope-from=antimeta88@hotmail.com; helo=NAM10-DM6-obe.outbound.protection.outlook.com
+X-W3C-Hub-DKIM-Status: validation passed: (address=antimeta88@hotmail.com domain=hotmail.com), signature is good
+X-W3C-Hub-Spam-Status: No, score=1.9
+X-W3C-Hub-Spam-Report: BAYES_50=0.8, DKIM_SIGNED=0.1, DKIM_VALID=-0.1, DKIM_VALID_AU=-0.1, DKIM_VALID_EF=-0.1, FREEMAIL_ENVFROM_END_DIGIT=0.25, FREEMAIL_FROM=0.001, HTML_MESSAGE=0.001, RCVD_IN_DNSWL_NONE=-0.0001, SPF_HELO_PASS=-0.001, SPF_PASS=-0.001, W3C_NW=1
+X-W3C-Scan-Sig: mimas.w3.org 1pYBfq-00G8EW-SJ 42843cab0103d795ca721d359710b856
+
+--_000_CY4PR03MB2728EE5A44A2951DBAAED489C0B39CY4PR03MB2728namp_d: 8b02a6e4-2be8-4785-fef6-08db1c22c4a3
+X-MS-Exchange-CrossTenant-originalarrivaltime: 03 Mar 2023 20:06:25.6292
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CO3PR03MB6776
+Received-SPF: pass client-ip=40.92.41.49; envelope-from=antimeta88@hotmail.com; helo=NAM10-DM6-obe.outbound.protection.outlook.com
+X-W3C-Hub-DKIM-Status: validation passed: (address=antimeta88@hotmail.com domain=hotmail.com), signature is good
+X-W3C-Hub-Spam-Status: No, score=1.9
+X-W3C-Hub-Spam-Report: BAYES_50=0.8, DKIM_SIGNED=0.1, DKIM_VALID=-0.1, DKIM_VALID_AU=-0.1, DKIM_VALID_EF=-0.1, FREEMAIL_ENVFROM_END_DIGIT=0.25, FREEMAIL_FROM=0.001, HTML_MESSAGE=0.001, RCVD_IN_DNSWL_NONE=-0.0001, SPF_HELO_PASS=-0.001, SPF_PASS=-0.001, W3C_NW=1
+X-W3C-Scan-Sig: mimas.w3.org 1pYBfq-00G8EW-SJ 42843cab0103d795ca721d359710b856
+
+--_000_CY4PR03MB2728EE5A44A2951DBAAED489C0B39CY4PR03MB2728namp_
+use strict';
+
+// A reverse lookup dictionary for all images on the page, indexed by the image source.
+// Note: Indexing by image source means that we are assuming each image appears no more than once on the page.
+// allImageDict :: Dictionary<url, img>
+let allImageDict = {};
+
+// All keys in this object are images sources for which an alt-text has been provided.
+// captionAddedDict :: Dictionary<url, int>
+// captionAddedDict[u] == j where captions[u][j] is the current caption being provided for the image with url u.
+// *OR* j == -1 or captions[u].length to indicate that the user navigated off the end of the captions list for u.
+let captionAddedDict = {};
+
+// captions :: Dictionary<url, Array<CaptionMessage>>
+// CaptionMessage :: { imageURL, caption, foundOnPage, bucket } (sent from web service via the background page)
+let captions = {};
+
+// Use long-lived connections between the background script and each content script.
+// The connection is created by the content script.
+// Long-lived connections are used for two reasons:
+//  1. A web page may contain many images and there may be a request (and reply) for
+//      each image
+//  2. The web service might decide to provide further alternative captions for an image
+//      and having a long-lived connection allows the background script to send those on
+//      to the content script.
+let port = chrome.runtime.connect({ name: "CaptionCrawler" });
+port.postMessage({ init: "Setting up port" });
+console.log('connected');
+
+// Stats about images on the associated page, just used for debugging.
+let altsAdded = 0;
+let alreadyHasAlt = 0;
+let urlTooLong = 0;
+let logoDetected = 0;
+let altsAskedFor = 0;
+let someOtherCategory = 0;
+let figCaptions = 0;
+
+// Periodically check for images that have been loaded into the page.
+// For each image, if it needs an alternate alt-text, send a request
+// to the background script for one.
+// Keep track of all images processed so that they are handled at most once.
+// According to https://stackoverflow.com/questions/729921/settimeout-or-setinterval
+// the way to do this is to use a recursive timeout.
+function processAllImages() {
+    let images = $('img');
+    $.each(images, function (index, currentImage) {
+        let src = currentImage.src;
+        if (!src) {
+            console.log('no src yet', currentImage);
+            return;
+        }
+        processImage(currentImage);
+    });
+    setTimeout(processAllImages, 2000);
+}
+processAllImages();
+
+port.onMessage.addListener(function (msg) {
+    receiveMessageFromBackgroundScript(msg);
+});
+
+function receiveMessageFromBackgroundScript(msg) {
+    if (msg.imageURL) {
+        // msg is { imageURL, caption, foundOnPage, bucket };
+        let url = msg.imageURL;
+        let altText = msg.caption;
+        let captionFromPage = msg.foundOnPage;
+
+        let foundImage = allImageDict[url];
+
+        if (captionAddedDict[url] === undefined) {
+            // then this is the first caption for this image
+            console.log('altAdded', altsAdded++, url, altText);
+            captionAddedDict[url] = 0;
+            captions[url] = []; // creation of a new array
+
+            
+            let sourceOfCaption = '';
+            let color = 'blue';
+            if (captionFromPage.startsWith('CaptionCrawler:')){
+                sourceOfCaption = '';
+                color = 'orange';
+            } else {
+                let parsedUrl = parseUrl(captionFromPage);
+                sourceOfCaption = ' (from: ' + parsedUrl.hostname + ')';
+                color = 'blue';
+            }
+            chrome.storage.sync.get('visibilityOption', function (data) {
+                if (data.visibilityOption) {
+                    foundImage.style.border = '5px solid ' + color;
+                }
+            });
+            foundImage.alt = 'Auto Alt: ' + altText + sourceOfCaption;
+        }
+        
+        captions[url].push(msg);
+    }
+    else {
+        console.log('unknown message', msg);
+    }
+}
+
+function parseUrl(href) {
+    let l = document.createElement("a");
+    l.href = href;
+    return l;
+};
+
+const oneMeg = 1 * 1024 * 1024;
+
+function processImage(image) {
+    
+    const src = getSrcUrlForImage(image);
+
+    if (allImageDict[src]) return;
+    console.log('Found new image:', src);
+    allImageDict[src] = image;
+
+    if (image.alt){
+        alreadyHasAlt++;
+        console.log('Not asking for caption: already has alt', image.alt);
+        chrome.storage.sync.get('visibilityOption', function (data) {
+            if (data.visibilityOption) {
+                image.style.border = "5px solid green";
+            }
+        });
+
+    } else if (src.length >= 1500) {
+        urlTooLong++;
+        console.log('Not asking for caption: url too long', src);
+        chrome.storage.sync.get('visibilityOption', function (data) {
+            if (data.visibilityOption) {
+                image.style.border = "5px solid yellow";
+            }
+        });
+    
+    } else if (src.toLowerCase().indexOf('logo') > -1) {
+        logoDetected++;
+        console.log('Not asking for caption: detected logo not sending', src);
+        chrome.storage.sync.get('visibilityOption', function (data) {
+            if (data.visibilityOption) {
+                image.style.border = "5px solid yellow";
+            }
+        });
+    
+    } else if (hasFigCaption(image)){
+        figCaptions++;
+        console.log('Not asking for caption: found figcaption element', image);
+        chrome.storage.sync.get('visibilityOption', function (data) {
+            if (data.visibilityOption) {
+                image.style.border = "5px solid green";
+            }
+        });
+
+    } else if (image.height > 15 && image.width > 15) {
+        altsAskedFor++;
+        console.log('Asking for caption:', src);
+        
+        image.alt = 'Auto Alt: Caption has been requested';
+
+        chrome.storage.sync.get('visibilityOption', function (data) {
+            if (data.visibilityOption) {
+                image.style.border = "5px solid red";
+            }
+        });
+
+        port.postMessage({ CaptionRequest: src });
+    }
+
+    else {
+        someOtherCategory++;
+        console.log('Not asking for caption: other category', image);
+        chrome.storage.sync.get('visibilityOption', function (data) {
+            if (data.visibilityOption) {
+                image.style.border = "5px solid yellow";
+            }
+        });
+    }
+}
+
+function hasFigCaption(image) {
+    let figs = $(image).closest("figure");
+    if (figs.length != 1) {
+        return false;
+    }
+    let fig = figs[0];
+    let captions = $(fig).children("figcaption");
+    if (captions.length != 1) {
+        return false;
+    }
+    return true;
+};
+
+function getSrcUrlForImage(image){
+    // src is the url that we will use as the unique identifier for this image
+    let src = image.src; // assume the src property is exactly what we need.
+    const qmarkIndex = src.indexOf('?');
+    if (qmarkIndex != -1){
+        src = src.substring(0, qmarkIndex);
+    }
+
+    let parent = image.parentNode;
+    if (parent instanceof HTMLPictureElement){
+        // use the src property of the first source element that is a child of the picture
+        let fc = parent.firstElementChild;
+        if (fc instanceof HTMLSourceElement && fc.dataset && fc.dataset.srcset){
+            src = fc.dataset.srcset;
+        }
+    }
+    return src;
+}
+
+// Add events to listen to short cut keys
+// This is how we are going to implement what can be done in Chrome via
+// the commands API, but which Edge does not provide. However this works
+// in both browsers.
+document.onkeydown = function (e) {
+    if (e.which == 190 /* '>' or '.' key */ && e.shiftKey && e.ctrlKey) {
+        possiblySupplyNextCaption(1);
+    }
+    else if (e.which == 188 /* '<' or ',' key */ && e.shiftKey && e.ctrlKey) {
+        possiblySupplyNextCaption(-1);
+    }
+    else if (e.which == 72 /* 'h' key */ && e.shiftKey && e.ctrlKey) {
+        reportStatsForThisPage();
+    }
+    return true;
+}
+
+function possiblySupplyNextCaption(increment){
+    let activeElement = document.activeElement;
+    let e = activeElement;
+    while (!(e instanceof HTMLImageElement)) {
+        if (e.childNodes.length != 1) break;
+        e = e.firstChild;
+        if (!e) break;
+    }
+    if (!(e instanceof HTMLImageElement)){
+        alert('active element on the page is not an image');
+        return;
+    }
+    
+    let url = getSrcUrlForImage(e);
+    
+    if (captionAddedDict[url] === undefined) {
+        alert('url not found in dictionary: ' + url);
+        return;
+    }
+    
+    let currentIndex = captionAddedDict[url];
+    
+    if((increment === 1 && currentIndex === captions[url].length)
+    || (increment === -1 && currentIndex === -1)) {
+        // then this is a nop, don't change any of the state associated with the image
+        return;
+    }
+    
+    let newIndex = currentIndex + increment;
+    captionAddedDict[url] = newIndex;
+    
+    let newAlt = '';
+    let alertMessage = '';
+
+    if((increment === 1 && currentIndex === captions[url].length-1)
+    ||
+    (increment === -1 && currentIndex === 0)) {
+        newAlt = 'Auto Alt: Sorry, but no more captions are available';
+        alertMessage = 'no more captions available for' + '\nurl: ' + url;
+    } else{
+        let caption = captions[url][newIndex];
+        // caption is { imageURL, caption, foundOnPage, bucket };
+        let altText = caption.caption;
+        let parsedUrl = parseUrl(caption.foundOnPage);
+        newAlt = 'Auto Alt: ' + altText + ' (from: ' + parsedUrl.hostname + ')';
+        // Add 1 to newIndex so users don't see it as zero indexed, but one indexed.
+        alertMessage = 'caption number: ' + (newIndex+1) + '\nurl: ' + url + '\ntext: ' + newAlt;
+    }
+    console.log('Navigating to another caption:', url, newAlt);
+    e.alt = newAlt;
+
+    chrome.storage.sync.get('visibilityOption', function (data) {
+        if (data.visibilityOption) {
+            if (captionAddedDict[url] % 2 === 0) {
+                activeElement.style.border = "5px solid blue";
+            } else {
+                activeElement.style.border = "5px solid purple";
+            }
+        }
+    })//
+    // corecrt_math.h
+    //
+    //      Copyright (c) Microsoft Corporation. All rights reserved.
+    //
+    // The majority of the C Standard Library <math.h> functionality.
+    //
+    #pragma once
+    #ifndef _INC_MATH // include guard for 3rd party interop
+    #define _INC_MATH
+    
+    #include <corecrt.h>
+    
+    #pragma warning(push)
+    #pragma warning(disable: _UCRT_DISABLED_WARNINGS)
+    _UCRT_DISABLE_CLANG_WARNINGS
+    
+    _CRT_BEGIN_C_HEADER
+    
+    #ifndef __assembler
+        // Definition of the _exception struct, which is passed to the matherr function
+        // when a floating point exception is detected:
+        struct _exception
+        {
+            int    type;   // exception type - see below
+            char*  name;   // name of function where error occurred
+            double arg1;   // first argument to function
+            double arg2;   // second argument (if any) to function
+            double retval; // value to be returned by function
+        };
+    
+        // Definition of the _complex struct to be used by those who use the complex
+        // functions and want type checking.
+        #ifndef _COMPLEX_DEFINED
+            #define _COMPLEX_DEFINED
+    
+            struct _complex
+            {
+                double x, y; // real and imaginary parts
+            };
+    
+            #if defined(_CRT_INTERNAL_NONSTDC_NAMES) && _CRT_INTERNAL_NONSTDC_NAMES && !defined __cplusplus
+                // Non-ANSI name for compatibility
+                #define complex _complex
+            #endif
+        #endif
+    #endif // __assembler
+    
+    
+    
+    // On x86, when not using /arch:SSE2 or greater, floating point operations
+    // are performed using the x87 instruction set and FLT_EVAL_METHOD is 2.
+    // (When /fp:fast is used, floating point operations may be consistent, so
+    // we use the default types.)
+    #if defined _M_IX86 && _M_IX86_FP < 2 && !defined _M_FP_FAST
+        typedef long double float_t;
+        typedef long double double_t;
+    #else
+        typedef float  float_t;
+        typedef double double_t;
+    #endif
+    
+    
+    
+    // Constant definitions for the exception type passed in the _exception struct
+    #define _DOMAIN     1   // argument domain error
+    #define _SING       2   // argument singularity
+    #define _OVERFLOW   3   // overflow range error
+    #define _UNDERFLOW  4   // underflow range error
+    #define _TLOSS      5   // total loss of precision
+    #define _PLOSS      6   // partial loss of precision
+    
+    // Definitions of _HUGE and HUGE_VAL - respectively the XENIX and ANSI names
+    // for a value returned in case of error by a number of the floating point
+    // math routines.
+    #ifndef __assembler
+        #ifndef _M_CEE_PURE
+            extern double const _HUGE;
+        #else
+            double const _HUGE = System::Double::PositiveInfinity;
+        #endif
+    #endif
+    
+    #ifndef _HUGE_ENUF
+        #define _HUGE_ENUF  1e+300  // _HUGE_ENUF*_HUGE_ENUF must overflow
+    #endif
+    
+    #define INFINITY   ((float)(_HUGE_ENUF * _HUGE_ENUF))
+    #define HUGE_VAL   ((double)INFINITY)
+    #define HUGE_VALF  ((float)INFINITY)
+    #define HUGE_VALL  ((long double)INFINITY)
+    #ifndef _UCRT_NEGATIVE_NAN
+    // This operation creates a negative NAN adding a - to make it positive
+    #define NAN        (-(float)(INFINITY * 0.0F))
+    #else
+    // Keep this for backwards compatibility
+    #define NAN        ((float)(INFINITY * 0.0F))
+    #endif
+    
+    #define _DENORM    (-2)
+    #define _FINITE    (-1)
+    #define _INFCODE   1
+    #define _NANCODE   2
+    
+    #define FP_INFINITE  _INFCODE
+    #define FP_NAN       _NANCODE
+    #define FP_NORMAL    _FINITE
+    #define FP_SUBNORMAL _DENORM
+    #define FP_ZERO      0
+    
+    #define _C2          1  // 0 if not 2's complement
+    #define FP_ILOGB0   (-0x7fffffff - _C2)
+    #define FP_ILOGBNAN 0x7fffffff
+    
+    #define MATH_ERRNO        1
+    #define MATH_ERREXCEPT    2
+    #define math_errhandling  (MATH_ERRNO | MATH_ERREXCEPT)
+    
+    // Values for use as arguments to the _fperrraise function
+    #define _FE_DIVBYZERO 0x04
+    #define _FE_INEXACT   0x20
+    #define _FE_INVALID   0x01
+    #define _FE_OVERFLOW  0x08
+    #define _FE_UNDERFLOW 0x10
+    
+    #define _D0_C  3 // little-endian, small long doubles
+    #define _D1_C  2
+    #define _D2_C  1
+    #define _D3_C  0
+    
+    #define _DBIAS 0x3fe
+    #define _DOFF  4
+    
+    #define _F0_C  1 // little-endian
+    #define _F1_C  0
+    
+    #define _FBIAS 0x7e
+    #define _FOFF  7
+    #define _FRND  1
+    
+    #define _L0_C  3 // little-endian, 64-bit long doubles
+    #define _L1_C  2
+    #define _L2_C  1
+    #define _L3_C  0
+    
+    #define _LBIAS 0x3fe
+    #define _LOFF  4
+    
+    // IEEE 754 double properties
+    #define _DFRAC  ((unsigned short)((1 << _DOFF) - 1))
+    #define _DMASK  ((unsigned short)(0x7fff & ~_DFRAC))
+    #define _DMAX   ((unsigned short)((1 << (15 - _DOFF)) - 1))
+    #define _DSIGN  ((unsigned short)0x8000)
+    
+    // IEEE 754 float properties
+    #define _FFRAC  ((unsigned short)((1 << _FOFF) - 1))
+    #define _FMASK  ((unsigned short)(0x7fff & ~_FFRAC))
+    #define _FMAX   ((unsigned short)((1 << (15 - _FOFF)) - 1))
+    #define _FSIGN  ((unsigned short)0x8000)
+    
+    // IEEE 754 long double properties
+    #define _LFRAC  ((unsigned short)(-1))
+    #define _LMASK  ((unsigned short)0x7fff)
+    #define _LMAX   ((unsigned short)0x7fff)
+    #define _LSIGN  ((unsigned short)0x8000)
+    
+    #define _DHUGE_EXP (int)(_DMAX * 900L / 1000)
+    #define _FHUGE_EXP (int)(_FMAX * 900L / 1000)
+    #define _LHUGE_EXP (int)(_LMAX * 900L / 1000)
+    
+    #define _DSIGN_C(_Val)  (((_double_val *)(char*)&(_Val))->_Sh[_D0_C] & _DSIGN)
+    #define _FSIGN_C(_Val)  (((_float_val  *)(char*)&(_Val))->_Sh[_F0_C] & _FSIGN)
+    #define _LSIGN_C(_Val)  (((_ldouble_val*)(char*)&(_Val))->_Sh[_L0_C] & _LSIGN)
+    
+    void __cdecl _fperrraise(_In_ int _Except);
+    
+    _Check_return_ _ACRTIMP short __cdecl _dclass(_In_ double _X);
+    _Check_return_ _ACRTIMP short __cdecl _ldclass(_In_ long double _X);
+    _Check_return_ _ACRTIMP short __cdecl _fdclass(_In_ float _X);
+    
+    _Check_return_ _ACRTIMP int __cdecl _dsign(_In_ double _X);
+    _Check_return_ _ACRTIMP int __cdecl _ldsign(_In_ long double _X);
+    _Check_return_ _ACRTIMP int __cdecl _fdsign(_In_ float _X);
+    
+    _Check_return_ _ACRTIMP int __cdecl _dpcomp(_In_ double _X, _In_ double _Y);
+    _Check_return_ _ACRTIMP int __cdecl _ldpcomp(_In_ long double _X, _In_ long double _Y);
+    _Check_return_ _ACRTIMP int __cdecl _fdpcomp(_In_ float _X, _In_ float _Y);
+    
+    _Check_return_ _ACRTIMP short __cdecl _dtest(_In_ double* _Px);
+    _Check_return_ _ACRTIMP short __cdecl _ldtest(_In_ long double* _Px);
+    _Check_return_ _ACRTIMP short __cdecl _fdtest(_In_ float* _Px);
+    
+    _ACRTIMP short __cdecl _d_int(_Inout_ double* _Px, _In_ short _Xexp);
+    _ACRTIMP short __cdecl _ld_int(_Inout_ long double* _Px, _In_ short _Xexp);
+    _ACRTIMP short __cdecl _fd_int(_Inout_ float* _Px, _In_ short _Xexp);
+    
+    _ACRTIMP short __cdecl _dscale(_Inout_ double* _Px, _In_ long _Lexp);
+    _ACRTIMP short __cdecl _ldscale(_Inout_ long double* _Px, _In_ long _Lexp);
+    _ACRTIMP short __cdecl _fdscale(_Inout_ float* _Px, _In_ long _Lexp);
+    
+    _ACRTIMP short __cdecl _dunscale(_Out_ short* _Pex, _Inout_ double* _Px);
+    _ACRTIMP short __cdecl _ldunscale(_Out_ short* _Pex, _Inout_ long double* _Px);
+    _ACRTIMP short __cdecl _fdunscale(_Out_ short* _Pex, _Inout_ float* _Px);
+    
+    _Check_return_ _ACRTIMP short __cdecl _dexp(_Inout_ double* _Px, _In_ double _Y, _In_ long _Eoff);
+    _Check_return_ _ACRTIMP short __cdecl _ldexp(_Inout_ long double* _Px, _In_ long double _Y, _In_ long _Eoff);
+    _Check_return_ _ACRTIMP short __cdecl _fdexp(_Inout_ float* _Px, _In_ float _Y, _In_ long _Eoff);
+    
+    _Check_return_ _ACRTIMP short __cdecl _dnorm(_Inout_updates_(4) unsigned short* _Ps);
+    _Check_return_ _ACRTIMP short __cdecl _fdnorm(_Inout_updates_(2) unsigned short* _Ps);
+    
+    _Check_return_ _ACRTIMP double __cdecl _dpoly(_In_ double _X, _In_reads_(_N) double const* _Tab, _In_ int _N);
+    _Check_return_ _ACRTIMP long double __cdecl _ldpoly(_In_ long double _X, _In_reads_(_N) long double const* _Tab, _In_ int _N);
+    _Check_return_ _ACRTIMP float __cdecl _fdpoly(_In_ float _X, _In_reads_(_N) float const* _Tab, _In_ int _N);
+    
+    _Check_return_ _ACRTIMP double __cdecl _dlog(_In_ double _X, _In_ int _Baseflag);
+    _Check_return_ _ACRTIMP long double __cdecl _ldlog(_In_ long double _X, _In_ int _Baseflag);
+    _Check_return_ _ACRTIMP float __cdecl _fdlog(_In_ float _X, _In_ int _Baseflag);
+    
+    _Check_return_ _ACRTIMP double __cdecl _dsin(_In_ double _X, _In_ unsigned int _Qoff);
+    _Check_return_ _ACRTIMP long double __cdecl _ldsin(_In_ long double _X, _In_ unsigned int _Qoff);
+    _Check_return_ _ACRTIMP float __cdecl _fdsin(_In_ float _X, _In_ unsigned int _Qoff);
+    
+    // double declarations
+    typedef union
+    {   // pun floating type as integer array
+        unsigned short _Sh[4];
+        double _Val;
+    } _double_val;
+    
+    // float declarations
+    typedef union
+    {   // pun floating type as integer array
+        unsigned short _Sh[2];
+        float _Val;
+    } _float_val;
+    
+    // long double declarations
+    typedef union
+    {   // pun floating type as integer array
+        unsigned short _Sh[4];
+        long double _Val;
+    } _ldouble_val;
+    
+    typedef union
+    {   // pun float types as integer array
+        unsigned short _Word[4];
+        float _Float;
+        double _Double;
+        long double _Long_double;
+    } _float_const;
+    
+    extern const _float_const _Denorm_C,  _Inf_C,  _Nan_C,  _Snan_C, _Hugeval_C;
+    extern const _float_const _FDenorm_C, _FInf_C, _FNan_C, _FSnan_C;
+    extern const _float_const _LDenorm_C, _LInf_C, _LNan_C, _LSnan_C;
+    
+    extern const _float_const _Eps_C,  _Rteps_C;
+    extern const _float_const _FEps_C, _FRteps_C;
+    extern const _float_const _LEps_C, _LRteps_C;
+    
+    extern const double      _Zero_C,  _Xbig_C;
+    extern const float       _FZero_C, _FXbig_C;
+    extern const long double _LZero_C, _LXbig_C;
+    
+    #define _FP_LT  1
+    #define _FP_EQ  2
+    #define _FP_GT  4
+    
+    #ifndef __cplusplus
+    
+        #define _CLASS_ARG(_Val)                                  __pragma(warning(suppress:6334))(sizeof ((_Val) + (float)0) == sizeof (float) ? 'f' : sizeof ((_Val) + (double)0) == sizeof (double) ? 'd' : 'l')
+        #define _CLASSIFY(_Val, _FFunc, _DFunc, _LDFunc)          (_CLASS_ARG(_Val) == 'f' ? _FFunc((float)(_Val)) : _CLASS_ARG(_Val) == 'd' ? _DFunc((double)(_Val)) : _LDFunc((long double)(_Val)))
+        #define _CLASSIFY2(_Val1, _Val2, _FFunc, _DFunc, _LDFunc) (_CLASS_ARG((_Val1) + (_Val2)) == 'f' ? _FFunc((float)(_Val1), (float)(_Val2)) : _CLASS_ARG((_Val1) + (_Val2)) == 'd' ? _DFunc((double)(_Val1), (double)(_Val2)) : _LDFunc((long double)(_Val1), (long double)(_Val2)))
+    
+        #define fpclassify(_Val)      (_CLASSIFY(_Val, _fdclass, _dclass, _ldclass))
+        #define _FPCOMPARE(_Val1, _Val2) (_CLASSIFY2(_Val1, _Val2, _fdpcomp, _dpcomp, _ldpcomp))
+    
+        #define isfinite(_Val)      (fpclassify(_Val) <= 0)
+        #define isinf(_Val)         (fpclassify(_Val) == FP_INFINITE)
+        #define isnan(_Val)         (fpclassify(_Val) == FP_NAN)
+        #define isnormal(_Val)      (fpclassify(_Val) == FP_NORMAL)
+        #define signbit(_Val)       (_CLASSIFY(_Val, _fdsign, _dsign, _ldsign))
+    
+        #define isgreater(x, y)      ((_FPCOMPARE(x, y) & _FP_GT) != 0)
+        #define isgreaterequal(x, y) ((_FPCOMPARE(x, y) & (_FP_EQ | _FP_GT)) != 0)
+        #define isless(x, y)         ((_FPCOMPARE(x, y) & _FP_LT) != 0)
+        #define islessequal(x, y)    ((_FPCOMPARE(x, y) & (_FP_LT | _FP_EQ)) != 0)
+        #define islessgreater(x, y)  ((_FPCOMPARE(x, y) & (_FP_LT | _FP_GT)) != 0)
+        #define isunordered(x, y)    (_FPCOMPARE(x, y) == 0)
+    
+    #else // __cplusplus
+    extern "C++"
+    {
+        _Check_return_ inline int fpclassify(_In_ float _X) throw()
+        {
+            return _fdtest(&_X);
+        }
+    
+        _Check_return_ inline int fpclassify(_In_ double _X) throw()
+        {
+            return _dtest(&_X);
+        }
+    
+        _Check_return_ inline int fpclassify(_In_ long double _X) throw()
+        {
+            return _ldtest(&_X);
+        }
+    
+        _Check_return_ inline bool signbit(_In_ float _X) throw()
+        {
+            return _fdsign(_X) != 0;
+        }
+    
+        _Check_return_ inline bool signbit(_In_ double _X) throw()
+        {
+            return _dsign(_X) != 0;
+        }
+    
+        _Check_return_ inline bool signbit(_In_ long double _X) throw()
+        {
+            return _ldsign(_X) != 0;
+        }
+    
+        _Check_return_ inline int _fpcomp(_In_ float _X, _In_ float _Y) throw()
+        {
+            return _fdpcomp(_X, _Y);
+        }
+    
+        _Check_return_ inline int _fpcomp(_In_ double _X, _In_ double _Y) throw()
+        {
+            return _dpcomp(_X, _Y);
+        }
+    
+        _Check_return_ inline int _fpcomp(_In_ long double _X, _In_ long double _Y) throw()
+        {
+            return _ldpcomp(_X, _Y);
+        }
+    
+        template <class _Trc, class _Tre> struct _Combined_type
+        {   // determine combined type
+            typedef float _Type;
+        };
+    
+        template <> struct _Combined_type<float, double>
+        {   // determine combined type
+            typedef double _Type;
+        };
+    
+        template <> struct _Combined_type<float, long double>
+        {   // determine combined type
+            typedef long double _Type;
+        };
+    
+        template <class _Ty, class _T2> struct _Real_widened
+        {   // determine widened real type
+            typedef long double _Type;
+        };
+    
+        template <> struct _Real_widened<float, float>
+        {   // determine widened real type
+            typedef float _Type;
+        };
+    
+        template <> struct _Real_widened<float, double>
+        {   // determine widened real type
+            typedef double _Type;
+        };
+    
+        template <> struct _Real_widened<double, float>
+        {   // determine widened real type
+            typedef double _Type;
+        };
+    
+        template <> struct _Real_widened<double, double>
+        {   // determine widened real type
+            typedef double _Type;
+        };
+    
+        template <class _Ty> struct _Real_type
+        {   // determine equivalent real type
+            typedef double _Type;   // default is double
+        };
+    
+        template <> struct _Real_type<float>
+        {   // determine equivalent real type
+            typedef float _Type;
+        };
+    
+        template <> struct _Real_type<long double>
+        {   // determine equivalent real type
+            typedef long double _Type;
+        };
+    
+        template <class _T1, class _T2>
+        _Check_return_ inline int _fpcomp(_In_ _T1 _X, _In_ _T2 _Y) throw()
+        {   // compare _Left and _Right
+            typedef typename _Combined_type<float,
+                typename _Real_widened<
+                typename _Real_type<_T1>::_Type,
+                typename _Real_type<_T2>::_Type>::_Type>::_Type _Tw;
+            return _fpcomp((_Tw)_X, (_Tw)_Y);
+        }
+    
+        template <class _Ty>
+        _Check_return_ inline bool isfinite(_In_ _Ty _X) throw()
+        {
+            return fpclassify(_X) <= 0;
+        }
+    
+        template <class _Ty>
+        _Check_return_ inline bool isinf(_In_ _Ty _X) throw()
+        {
+            return fpclassify(_X) == FP_INFINITE;
+        }
+    
+        template <class _Ty>
+        _Check_return_ inline bool isnan(_In_ _Ty _X) throw()
+        {
+            return fpclassify(_X) == FP_NAN;
+        }
+    
+        template <class _Ty>
+        _Check_return_ inline bool isnormal(_In_ _Ty _X) throw()
+        {
+            return fpclassify(_X) == FP_NORMAL;
+        }
+    
+        template <class _Ty1, class _Ty2>
+        _Check_return_ inline bool isgreater(_In_ _Ty1 _X, _In_ _Ty2 _Y) throw()
+        {
+            return (_fpcomp(_X, _Y) & _FP_GT) != 0;
+        }
+    
+        template <class _Ty1, class _Ty2>
+        _Check_return_ inline bool isgreaterequal(_In_ _Ty1 _X, _In_ _Ty2 _Y) throw()
+        {
+            return (_fpcomp(_X, _Y) & (_FP_EQ | _FP_GT)) != 0;
+        }
+    
+        template <class _Ty1, class _Ty2>
+        _Check_return_ inline bool isless(_In_ _Ty1 _X, _In_ _Ty2 _Y) throw()
+        {
+            return (_fpcomp(_X, _Y) & _FP_LT) != 0;
+        }
+    
+        template <class _Ty1, class _Ty2>
+        _Check_return_ inline bool islessequal(_In_ _Ty1 _X, _In_ _Ty2 _Y) throw()
+        {
+            return (_fpcomp(_X, _Y) & (_FP_LT | _FP_EQ)) != 0;
+        }
+    
+        template <class _Ty1, class _Ty2>
+        _Check_return_ inline bool islessgreater(_In_ _Ty1 _X, _In_ _Ty2 _Y) throw()
+        {
+            return (_fpcomp(_X, _Y) & (_FP_LT | _FP_GT)) != 0;
+        }
+    
+        template <class _Ty1, class _Ty2>
+        _Check_return_ inline bool isunordered(_In_ _Ty1 _X, _In_ _Ty2 _Y) throw()
+        {
+            return _fpcomp(_X, _Y) == 0;
+        }
+    }  // extern "C++"
+    #endif // __cplusplus
+    
+    
+    
+    #if _CRT_FUNCTIONS_REQUIRED
+    
+        _Check_return_ int       __cdecl abs(_In_ int _X);
+        _Check_return_ long      __cdecl labs(_In_ long _X);
+        _Check_return_ long long __cdecl llabs(_In_ long long _X);
+    
+        _Check_return_ double __cdecl acos(_In_ double _X);
+        _Check_return_ double __cdecl asin(_In_ double _X);
+        _Check_return_ double __cdecl atan(_In_ double _X);
+        _Check_return_ double __cdecl atan2(_In_ double _Y, _In_ double _X);
+    
+        _Check_return_ double __cdecl cos(_In_ double _X);
+        _Check_return_ double __cdecl cosh(_In_ double _X);
+        _Check_return_ double __cdecl exp(_In_ double _X);
+        _Check_return_ _CRT_JIT_INTRINSIC double __cdecl fabs(_In_ double _X);
+        _Check_return_ double __cdecl fmod(_In_ double _X, _In_ double _Y);
+        _Check_return_ double __cdecl log(_In_ double _X);
+        _Check_return_ double __cdecl log10(_In_ double _X);
+        _Check_return_ double __cdecl pow(_In_ double _X, _In_ double _Y);
+        _Check_return_ double __cdecl sin(_In_ double _X);
+        _Check_return_ double __cdecl sinh(_In_ double _X);
+        _Check_return_ _CRT_JIT_INTRINSIC double __cdecl sqrt(_In_ double _X);
+        _Check_return_ double __cdecl tan(_In_ double _X);
+        _Check_return_ double __cdecl tanh(_In_ double _X);
+    
+        _Check_return_ _ACRTIMP double    __cdecl acosh(_In_ double _X);
+        _Check_return_ _ACRTIMP double    __cdecl asinh(_In_ double _X);
+        _Check_return_ _ACRTIMP double    __cdecl atanh(_In_ double _X);
+        _Check_return_ _ACRTIMP  double    __cdecl atof(_In_z_ char const* _String);
+        _Check_return_ _ACRTIMP  double    __cdecl _atof_l(_In_z_ char const* _String, _In_opt_ _locale_t _Locale);
+        _Check_return_ _ACRTIMP double    __cdecl _cabs(_In_ struct _complex _Complex_value);
+        _Check_return_ _ACRTIMP double    __cdecl cbrt(_In_ double _X);
+        _Check_return_ _ACRTIMP double    __cdecl ceil(_In_ double _X);
+        _Check_return_ _ACRTIMP double    __cdecl _chgsign(_In_ double _X);
+        _Check_return_ _ACRTIMP double    __cdecl copysign(_In_ double _Number, _In_ double _Sign);
+        _Check_return_ _ACRTIMP double    __cdecl _copysign(_In_ double _Number, _In_ double _Sign);
+        _Check_return_ _ACRTIMP double    __cdecl erf(_In_ double _X);
+        _Check_return_ _ACRTIMP double    __cdecl erfc(_In_ double _X);
+        _Check_return_ _ACRTIMP double    __cdecl exp2(_In_ double _X);
+        _Check_return_ _ACRTIMP double    __cdecl expm1(_In_ double _X);
+        _Check_return_ _ACRTIMP double    __cdecl fdim(_In_ double _X, _In_ double _Y);
+        _Check_return_ _ACRTIMP double    __cdecl floor(_In_ double _X);
+        _Check_return_ _ACRTIMP double    __cdecl fma(_In_ double _X, _In_ double _Y, _In_ double _Z);
+        _Check_return_ _ACRTIMP double    __cdecl fmax(_In_ double _X, _In_ double _Y);
+        _Check_return_ _ACRTIMP double    __cdecl fmin(_In_ double _X, _In_ double _Y);
+        _Check_return_ _ACRTIMP double    __cdecl frexp(_In_ double _X, _Out_ int* _Y);
+        _Check_return_ _ACRTIMP double    __cdecl hypot(_In_ double _X, _In_ double _Y);
+        _Check_return_ _ACRTIMP double    __cdecl _hypot(_In_ double _X, _In_ double _Y);
+        _Check_return_ _ACRTIMP int       __cdecl ilogb(_In_ double _X);
+        _Check_return_ _ACRTIMP double    __cdecl ldexp(_In_ double _X, _In_ int _Y);
+        _Check_return_ _ACRTIMP double    __cdecl lgamma(_In_ double _X);
+        _Check_return_ _ACRTIMP long long __cdecl llrint(_In_ double _X);
+        _Check_return_ _ACRTIMP long long __cdecl llround(_In_ double _X);
+        _Check_return_ _ACRTIMP double    __cdecl log1p(_In_ double _X);
+        _Check_return_ _ACRTIMP double    __cdecl log2(_In_ double _X);
+        _Check_return_ _ACRTIMP double    __cdecl logb(_In_ double _X);
+        _Check_return_ _ACRTIMP long      __cdecl lrint(_In_ double _X);
+        _Check_return_ _ACRTIMP long      __cdecl lround(_In_ double _X);
+    
+        int __CRTDECL _matherr(_Inout_ struct _exception* _Except);
+    
+        _Check_return_ _ACRTIMP double __cdecl modf(_In_ double _X, _Out_ double* _Y);
+        _Check_return_ _ACRTIMP double __cdecl nan(_In_ char const* _X);
+        _Check_return_ _ACRTIMP double __cdecl nearbyint(_In_ double _X);
+        _Check_return_ _ACRTIMP double __cdecl nextafter(_In_ double _X, _In_ double _Y);
+        _Check_return_ _ACRTIMP double __cdecl nexttoward(_In_ double _X, _In_ long double _Y);
+        _Check_return_ _ACRTIMP double __cdecl remainder(_In_ double _X, _In_ double _Y);
+        _Check_return_ _ACRTIMP double __cdecl remquo(_In_ double _X, _In_ double _Y, _Out_ int* _Z);
+        _Check_return_ _ACRTIMP double __cdecl rint(_In_ double _X);
+        _Check_return_ _ACRTIMP double __cdecl round(_In_ double _X);
+        _Check_return_ _ACRTIMP double __cdecl scalbln(_In_ double _X, _In_ long _Y);
+        _Check_return_ _ACRTIMP double __cdecl scalbn(_In_ double _X, _In_ int _Y);
+        _Check_return_ _ACRTIMP double __cdecl tgamma(_In_ double _X);
+        _Check_return_ _ACRTIMP double __cdecl trunc(_In_ double _X);
+        _Check_return_ _ACRTIMP double __cdecl _j0(_In_ double _X );
+        _Check_return_ _ACRTIMP double __cdecl _j1(_In_ double _X );
+        _Check_return_ _ACRTIMP double __cdecl _jn(int _X, _In_ double _Y);
+        _Check_return_ _ACRTIMP double __cdecl _y0(_In_ double _X);
+        _Check_return_ _ACRTIMP double __cdecl _y1(_In_ double _X);
+        _Check_return_ _ACRTIMP double __cdecl _yn(_In_ int _X, _In_ double _Y);
+    
+        _Check_return_ _ACRTIMP float     __cdecl acoshf(_In_ float _X);
+        _Check_return_ _ACRTIMP float     __cdecl asinhf(_In_ float _X);
+        _Check_return_ _ACRTIMP float     __cdecl atanhf(_In_ float _X);
+        _Check_return_ _ACRTIMP float     __cdecl cbrtf(_In_ float _X);
+        _Check_return_ _ACRTIMP float     __cdecl _chgsignf(_In_ float _X);
+        _Check_return_ _ACRTIMP float     __cdecl copysignf(_In_ float _Number, _In_ float _Sign);
+        _Check_return_ _ACRTIMP float     __cdecl _copysignf(_In_ float _Number, _In_ float _Sign);
+        _Check_return_ _ACRTIMP float     __cdecl erff(_In_ float _X);
+        _Check_return_ _ACRTIMP float     __cdecl erfcf(_In_ float _X);
+        _Check_return_ _ACRTIMP float     __cdecl expm1f(_In_ float _X);
+        _Check_return_ _ACRTIMP float     __cdecl exp2f(_In_ float _X);
+        _Check_return_ _ACRTIMP float     __cdecl fdimf(_In_ float _X, _In_ float _Y);
+        _Check_return_ _ACRTIMP float     __cdecl fmaf(_In_ float _X, _In_ float _Y, _In_ float _Z);
+        _Check_return_ _ACRTIMP float     __cdecl fmaxf(_In_ float _X, _In_ float _Y);
+        _Check_return_ _ACRTIMP float     __cdecl fminf(_In_ float _X, _In_ float _Y);
+        _Check_return_ _ACRTIMP float     __cdecl _hypotf(_In_ float _X, _In_ float _Y);
+        _Check_return_ _ACRTIMP int       __cdecl ilogbf(_In_ float _X);
+        _Check_return_ _ACRTIMP float     __cdecl lgammaf(_In_ float _X);
+        _Check_return_ _ACRTIMP long long __cdecl llrintf(_In_ float _X);
+        _Check_return_ _ACRTIMP long long __cdecl llroundf(_In_ float _X);
+        _Check_return_ _ACRTIMP float     __cdecl log1pf(_In_ float _X);
+        _Check_return_ _ACRTIMP float     __cdecl log2f(_In_ float _X);
+        _Check_return_ _ACRTIMP float     __cdecl logbf(_In_ float _X);
+        _Check_return_ _ACRTIMP long      __cdecl lrintf(_In_ float _X);
+        _Check_return_ _ACRTIMP long      __cdecl lroundf(_In_ float _X);
+        _Check_return_ _ACRTIMP float     __cdecl nanf(_In_ char const* _X);
+        _Check_return_ _ACRTIMP float     __cdecl nearbyintf(_In_ float _X);
+        _Check_return_ _ACRTIMP float     __cdecl nextafterf(_In_ float _X, _In_ float _Y);
+        _Check_return_ _ACRTIMP float     __cdecl nexttowardf(_In_ float _X, _In_ long double _Y);
+        _Check_return_ _ACRTIMP float     __cdecl remainderf(_In_ float _X, _In_ float _Y);
+        _Check_return_ _ACRTIMP float     __cdecl remquof(_In_ float _X, _In_ float _Y, _Out_ int* _Z);
+        _Check_return_ _ACRTIMP float     __cdecl rintf(_In_ float _X);
+        _Check_return_ _ACRTIMP float     __cdecl roundf(_In_ float _X);
+        _Check_return_ _ACRTIMP float     __cdecl scalblnf(_In_ float _X, _In_ long _Y);
+        _Check_return_ _ACRTIMP float     __cdecl scalbnf(_In_ float _X, _In_ int _Y);
+        _Check_return_ _ACRTIMP float     __cdecl tgammaf(_In_ float _X);
+        _Check_return_ _ACRTIMP float     __cdecl truncf(_In_ float _X);
+    
+        #if defined _M_IX86
+    
+            _Check_return_ _ACRTIMP int  __cdecl _set_SSE2_enable(_In_ int _Flag);
+    
+        #endif
+    
+        #if defined _M_X64
+    
+            _Check_return_ _ACRTIMP float __cdecl _logbf(_In_ float _X);
+            _Check_return_ _ACRTIMP float __cdecl _nextafterf(_In_ float _X, _In_ float _Y);
+            _Check_return_ _ACRTIMP int   __cdecl _finitef(_In_ float _X);
+            _Check_return_ _ACRTIMP int   __cdecl _isnanf(_In_ float _X);
+            _Check_return_ _ACRTIMP int   __cdecl _fpclassf(_In_ float _X);
+    
+            _Check_return_ _ACRTIMP int   __cdecl _set_FMA3_enable(_In_ int _Flag);
+            _Check_return_ _ACRTIMP int   __cdecl _get_FMA3_enable(void);
+    
+        #elif defined _M_ARM || defined _M_ARM64 || defined _M_HYBRID_X86_ARM64
+    
+            _Check_return_ _ACRTIMP int   __cdecl _finitef(_In_ float _X);
+            _Check_return_ _ACRTIMP float __cdecl _logbf(_In_ float _X);
+    
+        #endif
+    
+    
+    
+        #if defined _M_X64 || defined _M_ARM || defined _M_ARM64 || defined _M_HYBRID_X86_ARM64 || defined _CORECRT_BUILD_APISET || defined _M_ARM64EC
+    
+            _Check_return_ _ACRTIMP float __cdecl acosf(_In_ float _X);
+            _Check_return_ _ACRTIMP float __cdecl asinf(_In_ float _X);
+            _Check_return_ _ACRTIMP float __cdecl atan2f(_In_ float _Y, _In_ float _X);
+            _Check_return_ _ACRTIMP float __cdecl atanf(_In_ float _X);
+            _Check_return_ _ACRTIMP float __cdecl ceilf(_In_ float _X);
+            _Check_return_ _ACRTIMP float __cdecl cosf(_In_ float _X);
+            _Check_return_ _ACRTIMP float __cdecl coshf(_In_ float _X);
+            _Check_return_ _ACRTIMP float __cdecl expf(_In_ float _X);
+    
+        #else
+    
+            _Check_return_ __inline float __CRTDECL acosf(_In_ float _X)
+            {
+                return (float)acos(_X);
+            }
+    
+            _Check_return_ __inline float __CRTDECL asinf(_In_ float _X)
+            {
+                return (float)asin(_X);
+            }
+    
+            _Check_return_ __inline float __CRTDECL atan2f(_In_ float _Y, _In_ float _X)
+            {
+                return (float)atan2(_Y, _X);
+            }
+    
+            _Check_return_ __inline float __CRTDECL atanf(_In_ float _X)
+            {
+                return (float)atan(_X);
+            }
+    
+            _Check_return_ __inline float __CRTDECL ceilf(_In_ float _X)
+            {
+                return (float)ceil(_X);
+            }
+    
+            _Check_return_ __inline float __CRTDECL cosf(_In_ float _X)
+            {
+                return (float)cos(_X);
+            }
+    
+            _Check_return_ __inline float __CRTDECL coshf(_In_ float _X)
+            {
+                return (float)cosh(_X);
+            }
+    
+            _Check_return_ __inline float __CRTDECL expf(_In_ float _X)
+            {
+                return (float)exp(_X);
+            }
+    
+        #endif
+    
+        #if defined _M_ARM || defined _M_ARM64 || defined _M_HYBRID_X86_ARM64 || defined _M_ARM64EC
+    
+            _Check_return_ _CRT_JIT_INTRINSIC _ACRTIMP float __cdecl fabsf(_In_ float  _X);
+    
+        #if defined _M_ARM64EC
+        #pragma intrinsic(fabsf)
+        #endif
+    
+        #else
+    
+            _Check_return_ __inline float __CRTDECL fabsf(_In_ float _X)
+            {
+                return (float)fabs(_X);
+            }
+    
+        #endif
+    
+        #if defined _M_X64 || defined _M_ARM || defined _M_ARM64 || defined _M_HYBRID_X86_ARM64 || defined _M_ARM64EC
+    
+            _Check_return_ _ACRTIMP float __cdecl floorf(_In_ float _X);
+            _Check_return_ _ACRTIMP float __cdecl fmodf(_In_ float _X, _In_ float _Y);
+    
+        #else
+    
+            _Check_return_ __inline float __CRTDECL floorf(_In_ float _X)
+            {
+                return (float)floor(_X);
+            }
+    
+            _Check_return_ __inline float __CRTDECL fmodf(_In_ float _X, _In_ float _Y)
+            {
+                return (float)fmod(_X, _Y);
+            }
+    
+        #endif
+    
+        _Check_return_ __inline float __CRTDECL frexpf(_In_ float _X, _Out_ int *_Y)
+        {
+            return (float)frexp(_X, _Y);
+        }
+    
+        _Check_return_ __inline float __CRTDECL hypotf(_In_ float _X, _In_ float _Y)
+        {
+            return _hypotf(_X, _Y);
+        }
+    
+        _Check_return_ __inline float __CRTDECL ldexpf(_In_ float _X, _In_ int _Y)
+        {
+            return (float)ldexp(_X, _Y);
+        }
+    
+        #if defined _M_X64 || defined _M_ARM || defined _M_ARM64 || defined _M_HYBRID_X86_ARM64 || defined _CORECRT_BUILD_APISET || defined _M_ARM64EC
+    
+            _Check_return_ _ACRTIMP float  __cdecl log10f(_In_ float _X);
+            _Check_return_ _ACRTIMP float  __cdecl logf(_In_ float _X);
+            _Check_return_ _ACRTIMP float  __cdecl modff(_In_ float _X, _Out_ float *_Y);
+            _Check_return_ _ACRTIMP float  __cdecl powf(_In_ float _X, _In_ float _Y);
+            _Check_return_ _ACRTIMP float  __cdecl sinf(_In_ float _X);
+            _Check_return_ _ACRTIMP float  __cdecl sinhf(_In_ float _X);
+            _Check_return_ _ACRTIMP float  __cdecl sqrtf(_In_ float _X);
+            _Check_return_ _ACRTIMP float  __cdecl tanf(_In_ float _X);
+            _Check_return_ _ACRTIMP float  __cdecl tanhf(_In_ float _X);
+    
+        #else
+    
+            _Check_return_ __inline float __CRTDECL log10f(_In_ float _X)
+            {
+                return (float)log10(_X);
+            }
+    
+            _Check_return_ __inline float __CRTDECL logf(_In_ float _X)
+            {
+                return (float)log(_X);
+            }
+    
+            _Check_return_ __inline float __CRTDECL modff(_In_ float _X, _Out_ float* _Y)
+            {
+                double _F, _I;
+                _F = modf(_X, &_I);
+                *_Y = (float)_I;
+                return (float)_F;
+            }
+    
+            _Check_return_ __inline float __CRTDECL powf(_In_ float _X, _In_ float _Y)
+            {
+                return (float)pow(_X, _Y);
+            }
+    
+            _Check_return_ __inline float __CRTDECL sinf(_In_ float _X)
+            {
+                return (float)sin(_X);
+            }
+    
+            _Check_return_ __inline float __CRTDECL sinhf(_In_ float _X)
+            {
+                return (float)sinh(_X);
+            }
+    
+            _Check_return_ __inline float __CRTDECL sqrtf(_In_ float _X)
+            {
+                return (float)sqrt(_X);
+            }
+    
+            _Check_return_ __inline float __CRTDECL tanf(_In_ float _X)
+            {
+                return (float)tan(_X);
+            }
+    
+            _Check_return_ __inline float __CRTDECL tanhf(_In_ float _X)
+            {
+                return (float)tanh(_X);
+            }
+    
+        #endif
+    
+        _Check_return_ _ACRTIMP long double __cdecl acoshl(_In_ long double _X);
+    
+        _Check_return_ __inline long double __CRTDECL acosl(_In_ long double _X)
+        {
+            return acos((double)_X);
+        }
+    
+        _Check_return_ _ACRTIMP long double __cdecl asinhl(_In_ long double _X);
+    
+        _Check_return_ __inline long double __CRTDECL asinl(_In_ long double _X)
+        {
+            return asin((double)_X);
+        }
+    
+        _Check_return_ __inline long double __CRTDECL atan2l(_In_ long double _Y, _In_ long double _X)
+        {
+            return atan2((double)_Y, (double)_X);
+        }
+    
+        _Check_return_ _ACRTIMP long double __cdecl atanhl(_In_ long double _X);
+    
+        _Check_return_ __inline long double __CRTDECL atanl(_In_ long double _X)
+        {
+            return atan((double)_X);
+        }
+    
+        _Check_return_ _ACRTIMP long double __cdecl cbrtl(_In_ long double _X);
+    
+        _Check_return_ __inline long double __CRTDECL ceill(_In_ long double _X)
+        {
+            return ceil((double)_X);
+        }
+    
+        _Check_return_ __inline long double __CRTDECL _chgsignl(_In_ long double _X)
+        {
+            return _chgsign((double)_X);
+        }
+    
+        _Check_return_ _ACRTIMP long double __cdecl copysignl(_In_ long double _Number, _In_ long double _Sign);
+    
+        _Check_return_ __inline long double __CRTDECL _copysignl(_In_ long double _Number, _In_ long double _Sign)
+        {
+            return _copysign((double)_Number, (double)_Sign);
+        }
+    
+        _Check_return_ __inline long double __CRTDECL coshl(_In_ long double _X)
+        {
+            return cosh((double)_X);
+        }
+    
+        _Check_return_ __inline long double __CRTDECL cosl(_In_ long double _X)
+        {
+            return cos((double)_X);
+        }
+    
+        _Check_return_ _ACRTIMP long double __cdecl erfl(_In_ long double _X);
+        _Check_return_ _ACRTIMP long double __cdecl erfcl(_In_ long double _X);
+    
+        _Check_return_ __inline long double __CRTDECL expl(_In_ long double _X)
+        {
+            return exp((double)_X);
+        }
+    
+        _Check_return_ _ACRTIMP long double __cdecl exp2l(_In_ long double _X);
+        _Check_return_ _ACRTIMP long double __cdecl expm1l(_In_ long double _X);
+    
+        _Check_return_ __inline long double __CRTDECL fabsl(_In_ long double _X)
+        {
+            return fabs((double)_X);
+        }
+    
+        _Check_return_ _ACRTIMP long double __cdecl fdiml(_In_ long double _X, _In_ long double _Y);
+    
+        _Check_return_ __inline long double __CRTDECL floorl(_In_ long double _X)
+        {
+            return floor((double)_X);
+        }
+    
+        _Check_return_ _ACRTIMP long double __cdecl fmal(_In_ long double _X, _In_ long double _Y, _In_ long double _Z);
+        _Check_return_ _ACRTIMP long double __cdecl fmaxl(_In_ long double _X, _In_ long double _Y);
+        _Check_return_ _ACRTIMP long double __cdecl fminl(_In_ long double _X, _In_ long double _Y);
+    
+        _Check_return_ __inline long double __CRTDECL fmodl(_In_ long double _X, _In_ long double _Y)
+        {
+            return fmod((double)_X, (double)_Y);
+        }
+    
+        _Check_return_ __inline long double __CRTDECL frexpl(_In_ long double _X, _Out_ int *_Y)
+        {
+            return frexp((double)_X, _Y);
+        }
+    
+        _Check_return_ _ACRTIMP int __cdecl ilogbl(_In_ long double _X);
+    
+        _Check_return_ __inline long double __CRTDECL _hypotl(_In_ long double _X, _In_ long double _Y)
+        {
+            return _hypot((double)_X, (double)_Y);
+        }
+    
+        _Check_return_ __inline long double __CRTDECL hypotl(_In_ long double _X, _In_ long double _Y)
+        {
+            return _hypot((double)_X, (double)_Y);
+        }
+    
+        _Check_return_ __inline long double __CRTDECL ldexpl(_In_ long double _X, _In_ int _Y)
+        {
+            return ldexp((double)_X, _Y);
+        }
+    
+        _Check_return_ _ACRTIMP long double __cdecl lgammal(_In_ long double _X);
+        _Check_return_ _ACRTIMP long long __cdecl llrintl(_In_ long double _X);
+        _Check_return_ _ACRTIMP long long __cdecl llroundl(_In_ long double _X);
+    
+        _Check_return_ __inline long double __CRTDECL logl(_In_ long double _X)
+        {
+            return log((double)_X);
+        }
+    
+        _Check_return_ __inline long double __CRTDECL log10l(_In_ long double _X)
+        {
+            return log10((double)_X);
+        }
+    
+        _Check_return_ _ACRTIMP long double __cdecl log1pl(_In_ long double _X);
+        _Check_return_ _ACRTIMP long double __cdecl log2l(_In_ long double _X);
+        _Check_return_ _ACRTIMP long double __cdecl logbl(_In_ long double _X);
+        _Check_return_ _ACRTIMP long __cdecl lrintl(_In_ long double _X);
+        _Check_return_ _ACRTIMP long __cdecl lroundl(_In_ long double _X);
+    
+        _Check_return_ __inline long double __CRTDECL modfl(_In_ long double _X, _Out_ long double* _Y)
+        {
+            double _F, _I;
+            _F = modf((double)_X, &_I);
+            *_Y = _I;
+            return _F;
+        }
+    
+        _Check_return_ _ACRTIMP long double __cdecl nanl(_In_ char const* _X);
+        _Check_return_ _ACRTIMP long double __cdecl nearbyintl(_In_ long double _X);
+        _Check_return_ _ACRTIMP long double __cdecl nextafterl(_In_ long double _X, _In_ long double _Y);
+        _Check_return_ _ACRTIMP long double __cdecl nexttowardl(_In_ long double _X, _In_ long double _Y);
+    
+        _Check_return_ __inline long double __CRTDECL powl(_In_ long double _X, _In_ long double _Y)
+        {
+            return pow((double)_X, (double)_Y);
+        }
+    
+        _Check_return_ _ACRTIMP long double __cdecl remainderl(_In_ long double _X, _In_ long double _Y);
+        _Check_return_ _ACRTIMP long double __cdecl remquol(_In_ long double _X, _In_ long double _Y, _Out_ int* _Z);
+        _Check_return_ _ACRTIMP long double __cdecl rintl(_In_ long double _X);
+        _Check_return_ _ACRTIMP long double __cdecl roundl(_In_ long double _X);
+        _Check_return_ _ACRTIMP long double __cdecl scalblnl(_In_ long double _X, _In_ long _Y);
+        _Check_return_ _ACRTIMP long double __cdecl scalbnl(_In_ long double _X, _In_ int _Y);
+    
+        _Check_return_ __inline long double __CRTDECL sinhl(_In_ long double _X)
+        {
+            return sinh((double)_X);
+        }
+    
+        _Check_return_ __inline long double __CRTDECL sinl(_In_ long double _X)
+        {
+            return sin((double)_X);
+        }
+    
+        _Check_return_ __inline long double __CRTDECL sqrtl(_In_ long double _X)
+        {
+            return sqrt((double)_X);
+        }
+    
+        _Check_return_ __inline long double __CRTDECL tanhl(_In_ long double _X)
+        {
+            return tanh((double)_X);
+        }
+    
+        _Check_return_ __inline long double __CRTDECL tanl(_In_ long double _X)
+        {
+            return tan((double)_X);
+        }
+    
+        _Check_return_ _ACRTIMP long double __cdecl tgammal(_In_ long double _X);
+        _Check_return_ _ACRTIMP long double __cdecl truncl(_In_ long double _X);
+    
+        #ifndef __cplusplus
+            #define _matherrl _matherr
+        #endif
+    
+    #endif // _CRT_FUNCTIONS_REQUIRED
+    
+    #if defined(_CRT_INTERNAL_NONSTDC_NAMES) && _CRT_INTERNAL_NONSTDC_NAMES
+    
+        #define DOMAIN      _DOMAIN
+        #define SING        _SING
+        #define OVERFLOW    _OVERFLOW
+        #define UNDERFLOW   _UNDERFLOW
+        #define TLOSS       _TLOSS
+        #define PLOSS       _PLOSS
+    
+        #define matherr     _matherr
+    
+        #ifndef __assembler
+            #ifndef _M_CEE_PURE
+                extern double HUGE;
+            #else
+                double const HUGE = _HUGE;
+            #endif
+    
+            _CRT_NONSTDC_DEPRECATE(_j0) _Check_return_ _ACRTIMP double __cdecl j0(_In_ double _X);
+            _CRT_NONSTDC_DEPRECATE(_j1) _Check_return_ _ACRTIMP double __cdecl j1(_In_ double _X);
+            _CRT_NONSTDC_DEPRECATE(_jn) _Check_return_ _ACRTIMP double __cdecl jn(_In_ int _X, _In_ double _Y);
+            _CRT_NONSTDC_DEPRECATE(_y0) _Check_return_ _ACRTIMP double __cdecl y0(_In_ double _X);
+            _CRT_NONSTDC_DEPRECATE(_y1) _Check_return_ _ACRTIMP double __cdecl y1(_In_ double _X);
+            _CRT_NONSTDC_DEPRECATE(_yn) _Check_return_ _ACRTIMP double __cdecl yn(_In_ int _X, _In_ double _Y);
+        #endif // !__assembler
+    
+    #endif // _CRT_INTERNAL_NONSTDC_NAMES
+    
+    _CRT_END_C_HEADER
+    _UCRT_RESTORE_CLANG_WARNINGS
+    #pragma warning(pop) // _UCRT_DISABLED_WARNINGS
+    #endif /* _INC_MATH *#if 0
+    
+    #endif
+    /{
+      "manifest_version": 2,
+      "name": "React Developer Tools",
+      "description": "Adds React debugging tools to the Firefox Developer Tools.\n\nCreated from revision 993c4d003 on 12/5/2023.",
+      "version": "5.0.0",
+      "applications": {
+        "gecko": {
+          "id": "@react-devtools",
+          "strict_min_version": "102.0"
+        }
+      },
+      "icons": {
+        "16": "icons/16-production.png",
+        "32": "icons/32-production.png",
+        "48": "icons/48-production.png",
+        "128": "icons/128-production.png"
+      },
+      "browser_action": {
+        "default_icon": {
+          "16": "icons/16-disabled.png",
+          "32": "icons/32-disabled.png",
+          "48": "icons/48-disabled.png",
+          "128": "icons/128-disabled.png"
+        },
+        "default_popup": "popups/disabled.html",
+        "browser_style": true
+      },
+      "devtools_page": "main.html",
+      "content_security_policy": "script-src 'self' 'unsafe-eval' blob:; object-src 'self'",
+      "web_accessible_resources": [
+        "main.html",
+        "panel.html",
+        "build/*.js"
+      ],
+      "background": {
+        "scripts": [
+          "build/background.js"
+        ]
+      },
+      "permissions": [
+        "file:///*",
+        "http://*/ * ",
+        "https://*/*",
+        "clipboardWrite",
+        "scripting",
+        "devtools"
+      ],
+      "content_scripts": [
+    {
+        "matches": [
+            "<all_urls>"
+        ] ,
+            "js" : [
+                "build/prepareInjection.js"
+            ] ,
+                "run_at" : "document_start"
+    }
+      ]
+    }
+    //------------------------------------------------------------------------------
+    // <auto-generated>
+    //     This code was generated by a tool.
+    //     Runtime Version:4.0.30319.42000
+    //
+    //     Changes to this file may cause incorrect behavior and will be lost if
+    //     the code is regenerated.
+    // </auto-generated>
+    //------------------------------------------------------------------------------
+    
+    namespace Properties {
+        
+        
+        [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.10.0.0")]
+        internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
+            
+            private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
+            
+            public static Settings Default {
+                get {
+                    return defaultInstance;
+                }
+            }
+        }
+    };
+    chrome.storage.sync.get('popUpNotificationOption', function (data) {
+        if (data.popUpNotificationOption) {
+            alert(alertMessage);
+        }
+    });
+
+}
+
+function reportStatsForThisPage(){
+    chrome.storage.sync.get('statsNotificationOption', function (data) {
+        if (data.statsNotificationOption) {
+            let numberOfImages = Object.keys(allImageDict).length;
+            # Build and test ASP.NET Core projects targeting the full .NET Framework.
+            # Add steps that publish symbols, save build artifacts, and more:
+            # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+            
+            trigger:
+            - main
+            
+            pool:
+              vmImage: 'windows-latest'
+            
+            variables:
+              solution: '**/*.sln'
+              buildPlatform: 'Any CPU'
+              buildConfiguration: 'Release'
+            
+            steps:
+            - task: NuGetToolInstaller@1
+            
+            - task: NuGetCommand@2
+              inputs:
+                restoreSolution: '$(solution)'
+            
+            - task: VSBuild@1
+              inputs:
+                solution: '$(solution)'
+                msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
+                platform: '$(buildPlatform)'
+                configuration: '$(buildConfiguration)'
+            
+            - task: VSTest@2
+              inputs:
+                platform: '$(buildPlatform)'# ASP.NET Core (.NET Framework)
+            # Build and test ASP.NET Core projects targeting the full .NET Framework.
+            # Add steps that publish symbols, save build artifacts, and more:
+            # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+            
+            trigger:
+            - main
+            
+            pool:
+              vmImage: 'windows-latest'
+            
+            variables:
+              solution: '**/*.sln'
+              buildPlatform: 'Any CPU'
+              buildConfiguration: 'Release'
+            
+            steps:
+            - task: NuGetToolInstaller@1
+            
+            - task: NuGetCommand@2
+              inputs:
+                restoreSolution: '$(solution)'
+            
+            - task: VSBuild@1
+              inputs:
+                solution: '$(solution)'
+                msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
+                platform: '$(buildPlatform)'
+                configuration: '$(buildConfiguration)'
+            
+            - task: VSTest@2
+              inputs:
+                platform: '$(buildPlatform)'
+            <Project Sdk="Microsoft.NET.Sdk">
+            
+              <PropertyGroup>
+                <OutputType>Exe</OutputType>
+                <TargetFramework>net5.0</TargetFramework>
+              </PropertyGroup>
+            
+            </Project>// Licensed to the .NET Foundation under one or more agreements.
+            // The .NET Foundation licenses this file to you under the MIT license.
+            
+            #ifndef __HOSTFXR_H__
+            #define __HOSTFXR_H__
+            
+            #include <stddef.h>
+            #include <stdint.h>
+            
+            #if defined(_WIN32)
+                #define HOSTFXR_CALLTYPE __cdecl
+                #ifdef _WCHAR_T_DEFINED
+                    typedef wchar_t char_t;
+                #else
+                    typedef unsigned short char_t;
+                #endif
+            #else
+                #define HOSTFXR_CALLTYPE
+                typedef char char_t;
+            #endif
+            
+            enum hostfxr_delegate_type
+            {
+                hdt_com_activation,
+                hdt_load_in_memory_assembly,
+                hdt_winrt_activation,
+                hdt_com_register,
+                hdt_com_unregister,
+                hdt_load_assembly_and_get_function_pointer,
+                hdt_get_function_pointer,
+                hdt_load_assembly,
+                hdt_load_assembly_bytes,
+            };
+            
+            typedef int32_t(HOSTFXR_CALLTYPE *hostfxr_main_fn)(const int argc, const char_t **argv);
+            typedef int32_t(HOSTFXR_CALLTYPE *hostfxr_main_startupinfo_fn)(
+                const int argc,
+                const char_t **argv,
+                const char_t *host_path,
+                const char_t *dotnet_root,
+                const char_t *app_path);
+            typedef int32_t(HOSTFXR_CALLTYPE* hostfxr_main_bundle_startupinfo_fn)(
+                const int argc,
+                const char_t** argv,
+                const char_t* host_path,
+                const char_t* dotnet_root,
+                const char_t* app_path,
+                int64_t bundle_header_offset);
+            
+            typedef void(HOSTFXR_CALLTYPE *hostfxr_error_writer_fn)(const char_t *message);
+            
+            //
+            // Sets a callback which is to be used to write errors to.
+            //
+            // Parameters:
+            //     error_writer
+            //         A callback function which will be invoked every time an error is to be reported.
+            //         Or nullptr to unregister previously registered callback and return to the default behavior.
+            // Return value:
+            //     The previously registered callback (which is now unregistered), or nullptr if no previous callback
+            //     was registered
+            //
+            // The error writer is registered per-thread, so the registration is thread-local. On each thread
+            // only one callback can be registered. Subsequent registrations overwrite the previous ones.
+            //
+            // By default no callback is registered in which case the errors are written to stderr.
+            //
+            // Each call to the error writer is sort of like writing a single line (the EOL character is omitted).
+            // Multiple calls to the error writer may occur for one failure.
+            //
+            // If the hostfxr invokes functions in hostpolicy as part of its operation, the error writer
+            // will be propagated to hostpolicy for the duration of the call. This means that errors from
+            // both hostfxr and hostpolicy will be reporter through the same error writer.
+            //
+            typedef hostfxr_error_writer_fn(HOSTFXR_CALLTYPE *hostfxr_set_error_writer_fn)(hostfxr_error_writer_fn error_writer);
+            
+            typedef void* hostfxr_handle;
+            struct hostfxr_initialize_parameters
+            {
+                size_t size;
+                const char_t *host_path;
+                const char_t *dotnet_root;
+            };
+            
+            //
+            // Initializes the hosting components for a dotnet command line running an application
+            //
+            // Parameters:
+            //    argc
+            //      Number of argv arguments
+            //    argv
+            //      Command-line arguments for running an application (as if through the dotnet executable).
+            //      Only command-line arguments which are accepted by runtime installation are supported, SDK/CLI commands are not supported.
+            //      For example 'app.dll app_argument_1 app_argument_2`.
+            //    parameters
+            //      Optional. Additional parameters for initialization
+            //    host_context_handle
+            //      On success, this will be populated with an opaque value representing the initialized host context
+            //
+            // Return value:
+            //    Success          - Hosting components were successfully initialized
+            //    HostInvalidState - Hosting components are already initialized
+            //
+            // This function parses the specified command-line arguments to determine the application to run. It will
+            // then find the corresponding .runtimeconfig.json and .deps.json with which to resolve frameworks and
+            // dependencies and prepare everything needed to load the runtime.
+            //
+            // This function only supports arguments for running an application. It does not support SDK commands.
+            //
+            // This function does not load the runtime.
+            //
+            typedef int32_t(HOSTFXR_CALLTYPE *hostfxr_initialize_for_dotnet_command_line_fn)(
+                int argc,
+                const char_t **argv,
+                const struct hostfxr_initialize_parameters *parameters,
+                /*out*/ hostfxr_handle *host_context_handle);
+            
+            //
+            // Initializes the hosting components using a .runtimeconfig.json file
+            //
+            // Parameters:
+            //    runtime_config_path
+            //      Path to the .runtimeconfig.json file
+            //    parameters
+            //      Optional. Additional parameters for initialization
+            //    host_context_handle
+            //      On success, this will be populated with an opaque value representing the initialized host context
+            //
+            // Return value:
+            //    Success                            - Hosting components were successfully initialized
+            //    Success_HostAlreadyInitialized     - Config is compatible with already initialized hosting components
+            //    Success_DifferentRuntimeProperties - Config has runtime properties that differ from already initialized hosting components
+            //    CoreHostIncompatibleConfig         - Config is incompatible with already initialized hosting components
+            //
+            // This function will process the .runtimeconfig.json to resolve frameworks and prepare everything needed
+            // to load the runtime. It will only process the .deps.json from frameworks (not any app/component that
+            // may be next to the .runtimeconfig.json).
+            //
+            // This function does not load the runtime.
+            //
+            // If called when the runtime has already been loaded, this function will check if the specified runtime
+            // config is compatible with the existing runtime.
+            //
+            // Both Success_HostAlreadyInitialized and Success_DifferentRuntimeProperties codes are considered successful
+            // initializations. In the case of Success_DifferentRuntimeProperties, it is left to the consumer to verify that
+            // the difference in properties is acceptable.
+            //
+            typedef int32_t(HOSTFXR_CALLTYPE *hostfxr_initialize_for_runtime_config_fn)(
+                const char_t *runtime_config_path,
+                const struct hostfxr_initialize_parameters *parameters,
+                /*out*/ hostfxr_handle *host_context_handle);
+            
+            //
+            // Gets the runtime property value for an initialized host context
+            //
+            // Parameters:
+            //     host_context_handle
+            //       Handle to the initialized host context
+            //     name
+            //       Runtime property name
+            //     value
+            //       Out parameter. Pointer to a buffer with the property value.
+            //
+            // Return value:
+            //     The error code result.
+            //
+            // The buffer pointed to by value is owned by the host context. The lifetime of the buffer is only
+            // guaranteed until any of the below occur:
+            //   - a 'run' method is called for the host context
+            //   - properties are changed via hostfxr_set_runtime_property_value
+            //   - the host context is closed via 'hostfxr_close'
+            //
+            // If host_context_handle is nullptr and an active host context exists, this function will get the
+            // property value for the active host context.
+            //
+            typedef int32_t(HOSTFXR_CALLTYPE *hostfxr_get_runtime_property_value_fn)(
+                const hostfxr_handle host_context_handle,
+                const char_t *name,
+                /*out*/ const char_t **value);
+            
+            //
+            // Sets the value of a runtime property for an initialized host context
+            //
+            // Parameters:
+            //     host_context_handle
+            //       Handle to the initialized host context
+            //     name
+            //       Runtime property name
+            //     value
+            //       Value to set
+            //
+            // Return value:
+            //     The error code result.
+            //
+            // Setting properties is only supported for the first host context, before the runtime has been loaded.
+            //
+            // If the property already exists in the host context, it will be overwritten. If value is nullptr, the
+            // property will be removed.
+            //
+            typedef int32_t(HOSTFXR_CALLTYPE *hostfxr_set_runtime_property_value_fn)(
+                const hostfxr_handle host_context_handle,
+                const char_t *name,
+                const char_t *value);
+            
+            //
+            // Gets all the runtime properties for an initialized host context
+            //
+            // Parameters:
+            //     host_context_handle
+            //       Handle to the initialized host context
+            //     count
+            //       [in] Size of the keys and values buffers
+            //       [out] Number of properties returned (size of keys/values buffers used). If the input value is too
+            //             small or keys/values is nullptr, this is populated with the number of available properties
+            //     keys
+            //       Array of pointers to buffers with runtime property keys
+            //     values
+            //       Array of pointers to buffers with runtime property values
+            //
+            // Return value:
+            //     The error code result.
+            //
+            // The buffers pointed to by keys and values are owned by the host context. The lifetime of the buffers is only
+            // guaranteed until any of the below occur:
+            //   - a 'run' method is called for the host context
+            //   - properties are changed via hostfxr_set_runtime_property_value
+            //   - the host context is closed via 'hostfxr_close'
+            //
+            // If host_context_handle is nullptr and an active host context exists, this function will get the
+            // properties for the active host context.
+            //
+            typedef int32_t(HOSTFXR_CALLTYPE *hostfxr_get_runtime_properties_fn)(
+                const hostfxr_handle host_context_handle,
+                /*inout*/ size_t * count,
+                /*out*/ const char_t **keys,
+                /*out*/ const char_t **values);
+            
+            //
+            // Load CoreCLR and run the application for an initialized host context
+            //
+            // Parameters:
+            //     host_context_handle
+            //       Handle to the initialized host context
+            //
+            // Return value:
+            //     If the app was successfully run, the exit code of the application. Otherwise, the error code result.
+            //
+            // The host_context_handle must have been initialized using hostfxr_initialize_for_dotnet_command_line.
+            //
+            // This function will not return until the managed application exits.
+            //
+            typedef int32_t(HOSTFXR_CALLTYPE *hostfxr_run_app_fn)(const hostfxr_handle host_context_handle);
+            
+            //
+            // Gets a typed delegate from the currently loaded CoreCLR or from a newly created one.
+            //
+            // Parameters:
+            //     host_context_handle
+            //       Handle to the initialized host context
+            //     type
+            //       Type of runtime delegate requested
+            //     delegate
+            //       An out parameter that will be assigned the delegate.
+            //
+            // Return value:
+            //     The error code result.
+            //
+            // If the host_context_handle was initialized using hostfxr_initialize_for_runtime_config,
+            // then all delegate types are supported.
+            // If the host_context_handle was initialized using hostfxr_initialize_for_dotnet_command_line,
+            // then only the following delegate types are currently supported:
+            //     hdt_load_assembly_and_get_function_pointer
+            //     hdt_get_function_pointer
+            //
+            typedef int32_t(HOSTFXR_CALLTYPE *hostfxr_get_runtime_delegate_fn)(
+                const hostfxr_handle host_context_handle,
+                enum hostfxr_delegate_type type,
+                /*out*/ void **delegate);
+            
+            //
+            // Closes an initialized host context
+            //
+            // Parameters:
+            //     host_context_handle
+            //       Handle to the initialized host context
+            //
+            // Return value:
+            //     The error code result.
+            //
+            typedef int32_t(HOSTFXR_CALLTYPE *hostfxr_close_fn)(const hostfxr_handle host_context_handle);
+            
+            struct hostfxr_dotnet_environment_sdk_info
+            {
+                size_t size;
+                const char_t* version;
+                const char_t* path;
+            };
+            
+            typedef void(HOSTFXR_CALLTYPE* hostfxr_get_dotnet_environment_info_result_fn)(
+                const struct hostfxr_dotnet_environment_info* info,
+                void* result_context);
+            
+            struct hostfxr_dotnet_environment_framework_info
+            {
+                size_t size;
+                const char_t* name;
+                const char_t* version;
+                const char_t* path;
+            };
+            
+            struct hostfxr_dotnet_environment_info
+            {
+                size_t size;
+            
+                const char_t* hostfxr_version;
+                const char_t* hostfxr_commit_hash;
+            
+                size_t sdk_count;
+                const struct hostfxr_dotnet_environment_sdk_info* sdks;
+            
+                size_t framework_count;
+                const struct hostfxr_dotnet_environment_framework_info* frameworks;
+            };
+            
+            //
+            // Returns available SDKs and frameworks.
+            //
+            // Resolves the existing SDKs and frameworks from a dotnet root directory (if
+            // any), or the global default location. If multi-level lookup is enabled and
+            // the dotnet root location is different than the global location, the SDKs and
+            // frameworks will be enumerated from both locations.
+            //
+            // The SDKs are sorted in ascending order by version, multi-level lookup
+            // locations are put before private ones.
+            //
+            // The frameworks are sorted in ascending order by name followed by version,
+            // multi-level lookup locations are put before private ones.
+            //
+            // Parameters:
+            //    dotnet_root
+            //      The path to a directory containing a dotnet executable.
+            //
+            //    reserved
+            //      Reserved for future parameters.
+            //
+            //    result
+            //      Callback invoke to return the list of SDKs and frameworks.
+            //      Structs and their elements are valid for the duration of the call.
+            //
+            //    result_context
+            //      Additional context passed to the result callback.
+            //
+            // Return value:
+            //   0 on success, otherwise failure.
+            //
+            // String encoding:
+            //   Windows     - UTF-16 (pal::char_t is 2 byte wchar_t)
+            //   Unix        - UTF-8  (pal::char_t is 1 byte char)
+            //
+            typedef int32_t(HOSTFXR_CALLTYPE* hostfxr_get_dotnet_environment_info_fn)(
+                const char_t* dotnet_root,
+                void* reserved,
+                hostfxr_get_dotnet_environment_info_result_fn result,
+                void* result_context);
+            
+            #endif //__HOSTFXR_H__
+            
+            
+            
+            
+            Cada pacote é licenciado para você por seu proprietário. A NuGet não é responsável por pacotes de terceiros nem concede licenças a eles. Alguns pacotes podem incluir dependências que são administradas por licenças adicionais. Siga a URL da origem (feed) do pacote para determinar todas as dependências.
+            
+            Versão 5.11.4.13 do Host do Console do Gerenciador de Pacotes
+            
+            Digite 'get-help NuGet' para ver todos os comandos disponíveis do NuGet.
+            
+            PM> "Microsoft.DiaSymReader.Pdb2Pdb/1.1.0-beta2-19575-01": {
+            At line:1 char:54
+            + "Microsoft.DiaSymReader.Pdb2Pdb/1.1.0-beta2-19575-01": {
+            +                                                      ~
+            Unexpected token ':' in expression or statement.
+            
+            At line:1 char:56
+            + "Microsoft.DiaSymReader.Pdb2Pdb/1.1.0-beta2-19575-01": {
+            +                                                        ~
+            Missing closing '}' in statement block or type definition.
+            PM>       "type": "package",
+            At line:1 char:13
+            +       "type": "package",
+            +             ~
+            Unexpected token ':' in expression or statement.
+            
+            At line:1 char:25
+            +       "type": "package",
+            +                         ~
+            Missing expression after ',' in pipeline element.
+            PM>       "serviceable": true,
+            At line:1 char:20
+            +       "serviceable": true,
+            +                    ~
+            Unexpected token ':' in expression or statement.
+            
+            At line:1 char:27
+            +       "serviceable": true,
+            +                           ~
+            Missing expression after ',' in pipeline element.
+            PM>       fS4nyfpgFLHBxHriLBR4v3e9t71it91gIMEeKUqOqrFJ7Pj48eHA==",
+            >>        "path": "microsoft.diasymreader.pdb2pdb/1.1.0-beta2-19575-01",
+            >>        "hashPath": "microsoft.diasymreader.pdb2pdb.1.1.0-beta2-19575-01.nupkg.sha512""sha512": "sha512-kY6eTNkeWLHvfOjg97Q7tgQKrPpX+Y3fR6
+            fS4nyfpgFLHBxHriLBR4v3e9t71it91gIMEeKUqOqrFJ7Pj48eHA==,
+                  path: microsoft.diasymreader.pdb2pdb/1.1.0-beta2-19575-01,
+                  hashPath: microsoft.diasymreader.pdb2pdb.1.1.0-beta2-19575-01.nupkg.sha512sha512: sha512-kY6eTNkeWLHvfOjg97Q7tgQKrPpX+Y3fR6 : The term 'fS4nyfpgFLHBxHriLBR4v3e9t71it91gIMEeKUqOqrFJ7Pj48eHA==,
+                  path: microsoft.diasymreader.pdb2pdb/1.1.0-beta2-19575-01,
+                  hashPath: microsoft.diasymreader.pdb2pdb.1.1.0-beta2-19575-01.nupkg.sha512sha512: sha512-kY6eTNkeWLHvfOjg97Q7tgQKrPpX+Y3fR6' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the 
+            spelling of the name, or if a path was included, verify that the path is correct and try again.
+            At line:1 char:7
+            +       fS4nyfpgFLHBxHriLBR4v3e9t71it91gIMEeKUqOqrFJ7Pj48eHA==",
+            +       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                + CategoryInfo          : ObjectNotFound: (fS4nyfpgFLHBxHr...7tgQKrPpX+Y3fR6:String) [], CommandNotFoundException
+                + FullyQualifiedErrorId : CommandNotFoundException
+             
+            PM>     }
+            At line:1 char:5
+            +     }
+            +     ~
+            Unexpected token '}' in expression or statement.
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            {
+                "launch": {
+                    "configurations": [
+                    
+                    ]
+                }transcripcioninstantanea#DESKTOP-C537H4Jelse
+            {
+                <table class="table">
+                https://prod.liveshare.vsengsaas.visualstudio.com/join?170876FC7619F8B462C5A577FDA4F2A153B2  <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Temp. (C)</th>
+                            <th>Temp. (F)</th>
+                            <th>Summary</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var forecast in forecasts)
+                        {
+                            <tr>
+                                <td>@forecast.Date.ToShortDateString()</td>
+                                <td>@forecast.TemperatureC</td>
+                                <td>@forecast.TemperatureF</td>
+                                <td>@forecast.Summary</td>
+                            </tr>
+                        }Install-Module -Name SqlServer
+                    </tbody>
+                </table>
+            }else
+            {
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Temp. (C)</th>
+                            <th>Temp. (F)</th>
+                            <th>Summary</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var forecast in forecasts)
+                        {
+                            <tr>
+                                <td>@forecast.Date.ToShortDateString()</td>
+                                <td>@forecast.TemperatureC</td>
+                                <td>@forecast.TemperatureF</td>
+                                <td>@forecast.Summary</td>
+                            </tr>
+                        }Install-Module -Name SqlServer
+                    </tbody>
+                </table>
+            }
+            
+            @code {
+                private WeatherForecast[]? forecasts;
+            
+                protected override async Task OnInitializedAsync()
+                {
+                    // Simulate asynchronous loading to demonstrate streaming rendering
+                    await Task.Delay(500);
+            
+                    var startDate = DateOnly.FromDateTime(DateTime.Now);
+                    var summaries = new[] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" };
+                forecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
+                    {
+                        Date = startDate.AddDays(index),
+                        TemperatureC = Random.Shared.Next(-20, 55),
+                        Summary = summaries[Random.Shared.Next(summaries.Length)]
+                    }).ToArray();
+                }
+            
+                private class WeatherForecast
+                {
+                    public DateOnly Date { get; set; }
+                    public int TemperatureC { get; set; }
+                    public string? Summary { get; set; }
+                    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+                }
+            }
+            
+            else
+            {
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Temp. (C)</th>
+                            <th>Temp. (F)</th>
+                            <th>Summary</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var forecast in forecasts)
+                        {
+                            <tr>
+                                <td>@forecast.Date.ToShortDateString()</td>
+                                <td>@forecast.TemperatureC</td>
+                                <td>@forecast.TemperatureF</td>
+                                <td>@forecast.Summary</td>
+                            </tr>
+                        }Install-Module -Name SqlServer
+                    </tbody>
+                </table>
+            }
+            
+            @code {
+                private WeatherForecast[]? forecasts;
+            
+                protected override async Task OnInitializedAsync()
+                {
+                    // Simulate asynchronous loading to demonstrate streaming rendering
+                    await Task.Delay(500);
+            
+                    var startDate = DateOnly.FromDateTime(DateTime.Now);
+                    var summaries = new[] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" };
+                forecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
+                    {
+                        Date = startDate.AddDays(index),
+                        TemperatureC = Random.Shared.Next(-20, 55),
+                        Summary = summaries[Random.Shared.Next(summaries.Length)]
+                    }).ToArray();
+                }
+            
+                private class WeatherForecast
+                {
+                    public DateOnly Date { get; set; }
+                    public int TemperatureC { get; set; }
+                    public string? Summary { get; set; }
+                    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+                }
+            }
+            
+            
+            
+            @code {
+                private WeatherForecast[]? forecasts;
+            
+                protected override async Task OnInitializedAsync()
+                {
+                    // Simulate asynchronous loading to demonstrate streaming rendering
+                    await Task.Delay(500);
+            
+                    var startDate = DateOnly.FromDateTime(DateTime.Now);
+                    var summaries = new[] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" };
+                forecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
+                    {
+                        Date = startDate.AddDays(index),
+                        TemperatureC = Random.Shared.Next(-20, 55),
+                        Summary = summaries[Random.Shared.Next(summaries.Length)]
+                    }).ToArray();
+                }
+            
+                private class WeatherForecast
+                {
+                    public DateOnly Date { get; set; }
+                    public int TemperatureC { get; set; }
+                    public string? Summary { get; set; }
+                    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+                }
+            }
+            
+                "workbench.colorTheme": "Default High Contrast",
+                "editor.unicodeHighlight.invisibleCharacters": false,
+                "editor.unicodeHighlight.ambiguousCharacters": false,
+                "workbench.editorAssociations": {
+                },
+                "prolead.runTime.timesActivated": 9,
+                "prolead.templates.configFile": "c:\\Users\\antim\\.vscode-insiders\\extensions\\chairimpsec.prolead-1.2.8/templates/config.set",
+                "prolead.templates.designFile": "c:\\Users\\antim\\.vscode-insiders\\extensions\\chairimpsec.prolead-1.2.8/templates/design.v",
+                "prolead.templates.libraryFile": "c:\\Users\\antim\\.vscode-insiders\\extensions\\chairimpsec.prolead-1.2.8/templates/library.lib",
+                "prolead.templates.linkerFile": "c:\\Users\\antim\\.vscode-insiders\\extensions\\chairimpsec.prolead-1.2.8/templates/linker.ld",
+                "prolead.runTime.welcomePage": false,
+                "editor.accessibilitySupport": "on",
+                "editor.codeActionsOnSave": {
+                    "source.organizeImports": true
+                },
+                "editor.linkedEditing": true,
+                "editor.minimap.enabled": false,
+                "editor.rulers": [
+                    {
+                        "column": 80,
+                        "color": "#00FF0010"
+                    },
+                    {
+                        "column": 100,
+                        "color": "#BDB76B15"
+                    },
+                    {
+                        "column": 120,
+                        "color": "#FA807219"
+                    }
+                ],
+                "editor.unicodeHighlight.includeComments": true,
+                "emmet.variables": {
+                    "lang": "es"
+                },
+                "workbench.colorCustomizations": {
+                    "[Default Dark Modern]": {
+                        "tab.activeBorderTop": "#00FF00",
+                        "tab.unfocusedActiveBorderTop": "#00FF0088",
+                        "textCodeBlock.background": "#00000055"
+                    },
+                    "editor.wordHighlightStrongBorder": "#FF6347",
+                    "editor.wordHighlightBorder": "#FFD700",
+                    "editor.selectionHighlightBorder": "#A9A9A9"
+                },
+                "workbench.editor.revealIfOpen": true,
+                "workbench.tree.indent": 20,
+                "files.eol": "\n",
+                "[bat]": {
+                    "files.eol": "\r\n"
+                },
+                "terminal.integrated.enablePersistentSessions": false,
+                "terminal.integrated.tabs.hideCondition": "never",
+                "java.configuration.updateBuildConfiguration": "automatic",
+                "java.debug.settings.hotCodeReplace": "auto",
+                "java.sources.organizeImports.staticStarThreshold": 1,
+                "cSpell.diagnosticLevel": "Hint",
+                "glassit.alpha": 230,
+                "trailing-spaces.includeEmptyLines": false,
+                "java.jdt.ls.java.home": "c:\\Users\\antim\\AppData\\Roaming\\Code - Insiders\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\17",
+                "spring-boot.ls.java.home": "c:\\Users\\antim\\AppData\\Roaming\\Code - Insiders\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\17",
+                "java.configuration.runtimes": [
+                    {
+                        "name": "JavaSE-1.8",
+                        "path": "C:\\Program Files\\Eclipse Foundation\\jdk-8.0.302.8-hotspot"
+                    },
+                    {
+                        "name": "JavaSE-11",
+                        "path": "C:\\Program Files\\Microsoft\\jdk-11.0.16.101-hotspot"
+                    },
+                    {
+                        "name": "JavaSE-17",
+                        "path": "c:\\Users\\antim\\AppData\\Roaming\\Code - Insiders\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\17",
+                        "default": true
+                    }
+                ],
+                "java.import.gradle.java.home": "c:\\Users\\antim\\AppData\\Roaming\\Code - Insiders\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\17",
+                "maven.terminal.customEnv": [
+                    {
+                        "environmentVariable": "JAVA_HOME",
+                        "value": "c:\\Users\\antim\\AppData\\Roaming\\Code - Insiders\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\17"
+                    }
+                ],
+                "terminal.integrated.env.windows": {
+                    "PATH": "c:\\Users\\antim\\AppData\\Roaming\\Code - Insiders\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\17\\bin;${env:PATH}",
+                    "JAVA_HOME": "c:\\Users\\antim\\AppData\\Roaming\\Code - Insiders\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\17"
+                }
+            } Copyright (c) Microsoft Corporation. All rights reserved.
+            # Licensed under the MIT license.
+            
+            # <ScriptBody>
+            param(
+              [Parameter(Mandatory=$true,
+              HelpMessage="The app ID of the app registration")]
+              [String]
+              $AppId,
+            
+              [Parameter(Mandatory=$true,
+              HelpMessage="The application permission scopes to configure on the app registration")]
+              [String[]]
+              $GraphScopes,
+            
+              [Parameter(Mandatory=$false)]
+              [Switch]
+              $StayConnected = $false
+            )
+            
+            $graphAppId = "00000003-0000-0000-c000-000000000000"
+            
+            # Requires an admin
+            Connect-MgGraph -Scopes "Application.ReadWrite.All AppRoleAssignment.ReadWrite.All User.Read" `
+             -UseDeviceAuthentication -ErrorAction Stop
+            
+            # Get context for access to tenant ID
+            $context = Get-MgContext -ErrorAction Stop
+            
+            # Get the application and service principal
+            $appRegistration = Get-MgApplication -Filter ("appId eq '" + $AppId +"'") -ErrorAction Stop
+            $appServicePrincipal = Get-MgServicePrincipal -Filter ("appId eq '" + $AppId + "'") -ErrorAction Stop
+            
+            # Lookup available Graph application permissions
+            $graphServicePrincipal = Get-MgServicePrincipal -Filter ("appId eq '" + $graphAppId + "'") -ErrorAction Stop
+            $graphAppPermissions = $graphServicePrincipal.AppRoles
+            
+            $resourceAccess = @()
+            
+            foreach($scope in $GraphScopes)
+            {
+              $permission = $graphAppPermissions | Where-Object { $_.Value -eq $scope }
+              if ($permission)
+              {
+                $resourceAccess += @{ Id =  $permission.Id; Type = "Role"}
+              }
+              else
+              {
+                Write-Host -ForegroundColor Red "Invalid scope:" $scope
+                Exit
+              }
+            }
+            
+            # Add the permissions to required resource access
+            Update-MgApplication -ApplicationId $appRegistration.Id -RequiredResourceAccess `
+             @{ ResourceAppId = $graphAppId; ResourceAccess = $resourceAccess } -ErrorAction Stop
+                   
+            Write-Host -ForegroundColor Cyan "Added application permissions to app registration"
+        }
+
+  body.certerror .title:dir(rtl) {
+    background-position-x: right;
+        }
+    }
+
+    "[jsonc]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "[html]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "prolead.runT\\wsl.localhost\Ubuntu\boot \\wsl.localhost\Ubuntu\dev \\wsl.localhost\Ubuntu\etc \\wsl.localhost\Ubuntu\home \\wsl.localhost\Ubuntu\lost+found \\wsl.localhost\Ubuntu\media \\wsl.localhost\Ubuntu\mnt \\wsl.localhost\Ubuntu\opt \\wsl.localhost\Ubuntu\proc \\wsl.localhost\Ubuntu\root \\wsl.localhost\Ubuntu\run \\wsl.localhost\Ubuntu\snap \\wsl.localhost\Ubuntu\srv \\wsl.localhost\Ubuntu\sys \\wsl.localhost\Ubuntu\tmp \\wsl.localhost\Ubuntu\usr \\wsl.localhost\Ubuntu\var \\wsl.localhost\Ubuntu\bin \\wsl.localhost\Ubuntu\init \\wsl.localhost\Ubuntu\lib \\wsl.localhost\Ubuntu\lib32 \\wsl.localhost\Ubuntu\lib64 \\wsl.localhost\Ubuntu\libx32 \\wsl.localhost\Ubuntu\sbin\\wsl.localhost\Ubuntu\boot \\wsl.localhost\Ubuntu\dev \\wsl.localhost\Ubuntu\etc \\wsl.localhost\Ubuntu\home \\wsl.localhost\Ubuntu\lost+found \\wsl.localhost\Ubuntu\media \\wsl.localhost\Ubuntu\mnt \\wsl.localhost\Ubuntu\opt \\wsl.localhost\Ubuntu\proc \\wsl.localhost\Ubuntu\root \\wsl.localhost\Ubuntu\run \\wsl.localhost\Ubuntu\snap \\wsl.localhost\Ubuntu\srv \\wsl.localhost\Ubuntu\sys \\wsl.localhost\Ubuntu\tmp \\wsl.localhost\Ubuntu\usr \\wsl.localhost\Ubuntu\var \\wsl.localhost\Ubuntu\bin \\wsl.localhost\Ubuntu\init \\wsl.localhost\Ubuntu\lib \\wsl.localhost\Ubuntu\lib32 \\wsl.localhost\Ubuntu\lib64 \\wsl.localhost\Ubuntu\libx32 \\wsl.localhost\Ubuntu\sbinime.timesActivated": 12,
+    "prolead.templates.configFile": "c:\\Users\\antim\\.vscode-insiders\\extensions\\chairimpsec.prolead-1.2.8/templates/config.set",
+    "prolead.templates.designFile": "c:\\Users\\antim\\.vscode-insiders\\extensions\\chairimpsec.prolead-1.2.8/templates/design.v",
+    "prolead.templates.libraryFile": "c:\\Users\\antim\\.vscode-insiders\\extensions\\chairimpsec.prolead-1.2.8/templates/library.lib",
+    "prolead.templates.linkerFile": "c:\\Users\\antim\\.vscode-insiders\\extensions\\chairimpsec.prolead-1.2.8/templates/linker.ld",
+    "prolead.runTime.welcomePage": false,
+    "cmake.options.statusBarVisibility": "icon",
+    "cmake.useCMakePresets": "always",
+    "cmake.configureOnOpen": true,
+    "workbench.activityBar.location": "top",
+    "haselerdev.aiquickfix.systemPrompt": "}d: 8b02a6e4 - 2be8 - 4785 - fef6 - 08db1c22c4a3         X-MS-Exchange-CrossTenant-originalarrivaltime: 03 Mar 2023 20:06:25.6292         (UTC) X - MS - Exchange - CrossTenant - fromentityheader: Hosted         X-MS-Exchange-CrossTenant-id: 84df9e7f - e9f6 - 40af - b435 - aaaaaaaaaaaa X - MS - Exchange - CrossTenant - rms - persistedconsumerorg: 00000000 - 0000 - 0000 - 0000 - 000000000000 X - MS - Exchange - Transport - CrossTenantHeadersStamped: CO3PR03MB6776         Received-SPF: pass client-ip=40.92.41.49; envelope - from = antimeta88@hotmail.com; helo = NAM10 - DM6 - obe.outbound.protection.outlook.com X - W3C - Hub - DKIM - Status: validation passed: (address = antimeta88@hotmail.com domain = hotmail.com), signature is good             X - W3C - Hub - Spam - Status: No, score = 1.9 X - W3C - Hub - Spam - Report: BAYES_50 = 0.8, DKIM_SIGNED = 0.1, DKIM_VALID = -0.1, DKIM_VALID_AU = -0.1, DKIM_VALID_EF = -0.1, FREEMAIL_ENVFROM_END_DIGIT = 0.25, FREEMAIL_FROM = 0.001, HTML_MESSAGE = 0.001, RCVD_IN_DNSWL_NONE = -0.0001, SPF_HELO_PASS = -0.001, SPF_PASS = -0.001, W3C_NW = 1 X - W3C - Scan - Sig: mimas.w3.org 1pYBfq - 00G8EW - SJ 42843cab0103d795ca721d359710b856            --_000_CY4PR03MB2728EE5A44A2951DBAAED489C0B39CY4PR03MB2728namp_",
+    "haselerdev.aiquickfix.apiKey": "}d: 8b02a6e4 - 2be8 - 4785 - fef6 - 08db1c22c4a3         X-MS-Exchange-CrossTenant-originalarrivaltime: 03 Mar 2023 20:06:25.6292         (UTC) X - MS - Exchange - CrossTenant - fromentityheader: Hosted         X-MS-Exchange-CrossTenant-id: 84df9e7f - e9f6 - 40af - b435 - aaaaaaaaaaaa X - MS - Exchange - CrossTenant - rms - persistedconsumerorg: 00000000 - 0000 - 0000 - 0000 - 000000000000 X - MS - Exchange - Transport - CrossTenantHeadersStamped: CO3PR03MB6776         Received-SPF: pass client-ip=40.92.41.49; envelope - from = antimeta88@hotmail.com; helo = NAM10 - DM6 - obe.outbound.protection.outlook.com X - W3C - Hub - DKIM - Status: validation passed: (address = antimeta88@hotmail.com domain = hotmail.com), signature is good             X - W3C - Hub - Spam - Status: No, score = 1.9 X - W3C - Hub - Spam - Report: BAYES_50 = 0.8, DKIM_SIGNED = 0.1, DKIM_VALID = -0.1, DKIM_VALID_AU = -0.1, DKIM_VALID_EF = -0.1, FREEMAIL_ENVFROM_END_DIGIT = 0.25, FREEMAIL_FROM = 0.001, HTML_MESSAGE = 0.001, RCVD_IN_DNSWL_NONE = -0.0001, SPF_HELO_PASS = -0.001, SPF_PASS = -0.001, W3C_NW = 1 X - W3C - Scan - Sig: mimas.w3.org 1pYBfq - 00G8EW - SJ 42843cab0103d795ca721d359710b856            --_000_CY4PR03MB2728EE5A44A2951DBAAED489C0B39CY4PR03MB2728namp_"
+}margin-inline-start: 27.0pt;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start:.75in;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start: 81.0pt;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start: 81.0pt;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start: 81.0pt;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start: 81.0pt;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start: 81.0pt;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start:.75in;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start: 27.0pt;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start:.75in;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start:.75in;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start: 81.0pt;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start: 81.0pt;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start: 81.0pt;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start: 81.0pt;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start: 81.0pt;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start: 81.0pt;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start: 81.0pt;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start: 81.0pt;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start:.75in;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start: 81.0pt;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start: 81.0pt;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start: 81.0pt;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start: 81.0pt;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start: 81.0pt;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start:.75in;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start: 27.0pt;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start: 27.0pt;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start:.75in;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start:.75in;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start: 27.0pt;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start: 27.0pt;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start: 27.0pt;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start: 27.0pt;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start: 27.0pt;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start:.75in;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start:.75in;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start:.75in;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start:.75in;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start:.75in;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start: 81.0pt;margin-block-end: 10.0pt;margin-inline-end: 0in;margin-block-start: 0in;margin-inline-start: 81.0pt;
